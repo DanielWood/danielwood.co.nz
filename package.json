@@ -1,0 +1,20 @@
+{
+  "name": "danielwood.co.nz",
+  "version": "1.0.0",
+  "description": "Daniel Wood's personal website",
+  "main": "index.js",
+  "repository": "https://github.com/DanielWood/danielwood.co.nz.git",
+  "author": "Daniel Wood",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "start-dev": "cd client; yarn start"
+  },
+  "dependencies": {
+    "@types/compression": "^1.7.0",
+    "@types/express": "^4.17.9",
+    "compression": "^1.7.4",
+    "express": "^4.17.1",
+    "typesafe-actions": "^5.1.0"
+  }
+}
