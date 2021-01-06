@@ -7,8 +7,8 @@ function App() {
     return (
         <div id="app">
             <Router>
-                {/* <Splash /> */}
-                <ThreeDemo />
+                <Splash />
+                {/* <ThreeDemo /> */}
             </Router>
         </div>
     );
