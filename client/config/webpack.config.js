@@ -351,7 +351,7 @@ module.exports = function (webpackEnv) {
                     // match the requirements. When no loader matches it will fall
                     // back to the "file" loader at the end of the loader list.
                     oneOf: [
-                        //
+                        // Load .glsl shader files as raw strings
                         {
                             test: [/\.glsl$/],
                             loader: require.resolve('raw-loader'),
