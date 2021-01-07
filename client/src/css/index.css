@@ -56,3 +56,7 @@ body,
 .right-1\/2 {
     right: 50%;
 }
+
+.neg-z-1 {
+    z-index: -1;
+}
