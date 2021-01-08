@@ -1,7 +1,32 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useEvent from '@react-hook/event';
 import { useDebounce } from '@react-hook/debounce';
 import Utils from '@/utils';
+
+// Special thanks to Joel Teply for this idea
+// https://stackoverflow.com/a/57781079/14496758
+export const useHasTrackpad = () => {
+    let [isTrackpadCounts, setIsTrackpadCounts] = useState<number>(0);
+    let [isTrackpad, setIsTrackpad] = useState<boolean>(
+        !!window.navigator.userAgent.match(/(Mobile)|(Mac OS)/i)
+    );
+
+    const handleWheel = (e: WheelEvent) => {
+        const isMouse = e.deltaX === 0 && Number.isInteger(e.deltaY);
+        isTrackpadCounts += isMouse ? -1 : 1;
+        if (Math.abs(isTrackpadCounts) > 3) {
+            setIsTrackpad(isTrackpadCounts > 0);
+            window.removeEventListener('wheel', handleWheel);
+        }
+    };
+
+    // Register wheel event listener
+    useEffect(() => {
+        window.addEventListener('wheel', handleWheel);
+    }, []);
+
+    return isTrackpad;
+};
 
 export const useWheelY = (fps: number = 60, callback?: (deltaY: number) => void) => {
     const [wheelY, setWheelY] = useDebounce<number>(0, 1000 / fps);
@@ -17,56 +42,61 @@ export const useStickyWheel = (
     max: number,
     step: number = 1,
     fps: number = 60
-): [number, () => void, number] => {
-    const [scroll, setScroll] = useDebounce<number>(min, 1000 / fps);
-    const [isStuck, setIsStuck] = useState<boolean | null>(null);
-    const [lastDeltaY, setLastDeltaY] = useDebounce<number>(0, 1000 / fps);
+): [() => number] => {
+    const [lastDeltaY, setLastDeltaY] = useState<number>(0);
+    const [maxDistY, setMaxDistY] = useState<number>(0);
+    const [target, setTarget] = useState<number>(0);
+    const [scroll, setScroll] = useState<number>(0);
+    const [lastDeltas] = useState<number[]>([]);
+    const [nudge, setNudge] = useState<number>(0);
 
-    // Used for handling trackpad scrolls
-    const [lastDeltas] = useDebounce<number[]>([], 1000 / fps);
-    const [maxDeltaY, setMaxDeltaY] = useState<number>(0);
+    const getIsTrackpad = useHasTrackpad();
 
     // We will return this function to the caller
-    const unStick = () => {
-        setIsStuck(false);
-        setLastDeltaY(0);
+    const getScroll = () => {
+        setTarget(Utils.clamp(Math.round(scroll), min, max));
+        setScroll(Utils.lerp(scroll, target + nudge, 0.05));
+        setNudge(Utils.lerp(nudge, 0, 0.1));
+        return min + scroll * step;
     };
 
     useWheelY(fps, (dy) => {
+        // Calibrate scroll distance
+        if (Math.abs(dy) > maxDistY) {
+            setMaxDistY(Math.abs(dy));
+            return;
+        }
+
+        // Update deltas buffer
+        lastDeltas.push(dy);
+        if (lastDeltas.length >= 5) lastDeltas.shift();
+
         // Handle trackpad movement
-        const isTrackpad = Math.abs(dy) < 5;
+        const isTrackpad = getIsTrackpad;
+        // console.log(isTrackpad);
         if (isTrackpad) {
-            // Used to calculate trackpad
-            if (Math.abs(dy) > maxDeltaY) setMaxDeltaY(Math.abs(dy));
-
             // Recalculate dy as a rolling average
-            lastDeltas.push(dy);
             dy = lastDeltas.reduce((prev, cur) => prev + cur, 0) / lastDeltas.length;
-            if (lastDeltas.length > 5) lastDeltas.shift();
 
-            let didSpeedUp = Math.abs(dy) > Math.abs(lastDeltaY);
-            let isGoingFast = Math.abs(dy) >= maxDeltaY / 3;
-            if (!didSpeedUp || !isGoingFast) {
-                setLastDeltaY(dy);
-                return;
+            // Simple heuristic
+            const didSpeedUp = Math.abs(dy) > Math.abs(lastDeltaY);
+            if (didSpeedUp) {
+                let scrollAmt = dy / maxDistY;
+                setNudge(nudge + scrollAmt);
+                console.log(nudge);
             }
         }
 
-        if (!isStuck) {
-            // Compute next scroll value
-            let sign = Math.sign(dy);
-            let offset = sign * step;
-            let next = Utils.clamp(scroll + offset, min, max);
-
-            console.log(`Updating scroll value to ${next}`);
-
-            setScroll(next);
-            setIsStuck(true);
+        // Handle mouse wheel movement
+        if (!isTrackpad) {
+            let direction = dy / maxDistY;
+            setNudge(nudge + direction * 0.6);
+            console.log(nudge);
         }
 
         setLastDeltaY(dy);
     });
 
     // Returns function to unstick the scroll
-    return [scroll, unStick, lastDeltaY];
+    return [getScroll];
 };

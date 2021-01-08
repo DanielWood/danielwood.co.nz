@@ -7,6 +7,7 @@ import SkillDescription from './SkillDescription';
 import skills from './store';
 import myVertexShader from '@/res/shaders/myVertexShader.glsl';
 import myFragmentShader from '@/res/shaders/myFragmentShader.glsl';
+import { useDebounce } from '@react-hook/debounce';
 
 const cardMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -34,25 +35,13 @@ const Card = ({ img: image, yOffset = 0 }) => {
 
 const SkillCards = ({}) => {
     const cardsRef = useRef<THREE.Group>(null!);
-    const [scroll, unStick] = useStickyWheel(0, 5);
-    const [isOnCard, setIsOnCard] = useState<boolean>(false);
+    const [interval] = useState(1 / 60);
+    let [deltaTime] = useState(0);
+    const [getScroll] = useStickyWheel(0, 5);
 
-    useFrame((ctx) => {
-        // console.log(scroll);
-
+    useFrame(({ clock }) => {
         // Sticky scrolling code
-        cardsRef.current.position.y = THREE.MathUtils.lerp(cardsRef.current.position.y, scroll * 10, 0.1);
-
-        const dist = Math.abs(cardsRef.current.position.y - scroll * 10);
-        // console.log(dist);
-        if (dist < 0.2 && !isOnCard) {
-            setIsOnCard(true);
-            // console.log('Unsticking in 5sec');
-            setTimeout(() => {
-                unStick();
-                setIsOnCard(false);
-            }, 500);
-        }
+        cardsRef.current.position.y = getScroll() * 10;
     });
 
     return (
