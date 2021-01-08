@@ -1,31 +1,30 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useEvent from '@react-hook/event';
 import { useDebounce } from '@react-hook/debounce';
 import Utils from '@/utils';
 
 // Special thanks to Joel Teply for this idea
 // https://stackoverflow.com/a/57781079/14496758
-export const useHasTrackpad = () => {
-    let [isTrackpadCounts, setIsTrackpadCounts] = useState<number>(0);
-    let [isTrackpad, setIsTrackpad] = useState<boolean>(
+export const useIsTouchpad = () => {
+    let counter = useRef<number>(0);
+    let [isTouchpad, setIsTouchpad] = useState<boolean>(
         !!window.navigator.userAgent.match(/(Mobile)|(Mac OS)/i)
     );
 
     const handleWheel = (e: WheelEvent) => {
         const isMouse = e.deltaX === 0 && Number.isInteger(e.deltaY);
-        isTrackpadCounts += isMouse ? -1 : 1;
-        if (Math.abs(isTrackpadCounts) > 3) {
-            setIsTrackpad(isTrackpadCounts > 0);
+        counter.current += isMouse ? -1 : 1;
+        if (Math.abs(counter.current) > 3) {
+            setIsTouchpad(counter.current > 0);
             window.removeEventListener('wheel', handleWheel);
         }
     };
 
-    // Register wheel event listener
     useEffect(() => {
         window.addEventListener('wheel', handleWheel);
     }, []);
 
-    return isTrackpad;
+    return isTouchpad;
 };
 
 export const useWheelY = (fps: number = 60, callback?: (deltaY: number) => void) => {
@@ -50,7 +49,7 @@ export const useStickyWheel = (
     const [lastDeltas] = useState<number[]>([]);
     const [nudge, setNudge] = useState<number>(0);
 
-    const getIsTrackpad = useHasTrackpad();
+    const getIsTouchpad = useIsTouchpad();
 
     // We will return this function to the caller
     const getScroll = () => {
@@ -71,10 +70,9 @@ export const useStickyWheel = (
         lastDeltas.push(dy);
         if (lastDeltas.length >= 5) lastDeltas.shift();
 
-        // Handle trackpad movement
-        const isTrackpad = getIsTrackpad;
-        // console.log(isTrackpad);
-        if (isTrackpad) {
+        // Handle touchpad movement
+        const isTouchpad = getIsTouchpad;
+        if (isTouchpad) {
             // Recalculate dy as a rolling average
             dy = lastDeltas.reduce((prev, cur) => prev + cur, 0) / lastDeltas.length;
 
@@ -83,15 +81,13 @@ export const useStickyWheel = (
             if (didSpeedUp) {
                 let scrollAmt = dy / maxDistY;
                 setNudge(nudge + scrollAmt);
-                console.log(nudge);
             }
         }
 
         // Handle mouse wheel movement
-        if (!isTrackpad) {
+        if (!isTouchpad) {
             let direction = dy / maxDistY;
             setNudge(nudge + direction * 0.6);
-            console.log(nudge);
         }
 
         setLastDeltaY(dy);
