@@ -36,12 +36,22 @@ export const useWheelY = (fps: number = 60, callback?: (deltaY: number) => void)
     return wheelY;
 };
 
+export interface StickyWheelContext {
+    getScroll: () => number;
+    getTarget: () => number;
+    getNudge: () => number;
+    isTouchpad: boolean;
+}
+
 export const useStickyWheel = (
     min: number,
     max: number,
     step: number = 1,
+    speed: number = 2,
+    damping: number = 5,
+    wheelFactor: number = 0.2,
     fps: number = 60
-): [() => number] => {
+): StickyWheelContext => {
     const nudge = useRef(0);
     const scroll = useRef(0);
     const target = useRef(0);
@@ -51,13 +61,28 @@ export const useStickyWheel = (
 
     const isTouchpad = useIsTouchpad();
 
-    // We will return this function to the caller
-    const getScroll = () => {
+    const lastTick = useRef<number>(null!);
+    const tick = (t) => {
+        const deltaSec = (t - lastTick.current || 0) / 1000;
+        lastTick.current = t;
+
+        // Round target to nearest integer
         target.current = Utils.clamp(Math.round(scroll.current), min, max);
-        scroll.current = Utils.lerp(scroll.current, target.current + nudge.current, 0.05);
-        nudge.current = Utils.lerp(nudge.current, 0, 0.1);
-        return min + scroll.current * step;
+
+        // Lerp scroll value to target
+        scroll.current = Utils.lerp(
+            scroll.current,
+            target.current + nudge.current,
+            speed * deltaSec
+        );
+
+        // Dampen nudge velocity
+        nudge.current = Utils.lerp(nudge.current, 0, damping * deltaSec);
+
+        window.requestAnimationFrame(tick);
     };
+
+    window.requestAnimationFrame(tick);
 
     useWheelY(fps, (dy) => {
         // Calibrate scroll distance
@@ -72,10 +97,9 @@ export const useStickyWheel = (
 
         // Handle touchpad movement
         if (isTouchpad) {
-            // Recalculate dy as a rolling average
+            // Recalculate dy as a moving average
             dy = dys.current.reduce((prev, cur) => prev + cur, 0) / dys.current.length;
 
-            // Simple heuristic
             const didSpeedUp = Math.abs(dy) > Math.abs(lastDeltaY.current);
             if (didSpeedUp) {
                 let scrollAmt = dy / maxDistY.current;
@@ -86,12 +110,17 @@ export const useStickyWheel = (
         // Handle mouse wheel movement
         if (!isTouchpad) {
             let direction = dy / maxDistY.current;
-            nudge.current += direction * 0.6;
+            nudge.current += direction * wheelFactor;
         }
 
         lastDeltaY.current = dy;
     });
 
     // Returns function to unstick the scroll.current
-    return [getScroll];
+    return {
+        getScroll: () => min + scroll.current * step,
+        getTarget: () => target.current,
+        getNudge: () => nudge.current,
+        isTouchpad,
+    };
 };
