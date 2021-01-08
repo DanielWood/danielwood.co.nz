@@ -59,9 +59,9 @@ const Points = ({ separation = 20, amountX = 50, amountY = 50 }) => {
     useFrame(({ clock }) => {
         const time = clock.getElapsedTime();
 
-        point.current.rotation.x = Math.cos(time / 2) / 4;
-        point.current.rotation.z = Math.sin(time / 2) / 4;
-        point.current.rotation.y = time / 8;
+        // point.current.rotation.x = Math.cos(time / 2) / 4;
+        // point.current.rotation.z = Math.sin(time / 2) / 4;
+        // point.current.rotation.y = time / 8;
 
         let id = 0;
         for (let x = 0; x < amountX; x++) {

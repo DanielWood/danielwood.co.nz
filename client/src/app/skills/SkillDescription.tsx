@@ -6,7 +6,7 @@ interface Props {
     text: string;
 }
 
-const SkillCard = ({ title, text }: Props) => (
+const SkillDescription = ({ title, text }: Props) => (
     <div className="flex w-full h-full flex-row">
         <div className="w-1/2 my-auto ml-32">
             <h1 className="mx-auto text-xl font-bold">{title}</h1>
@@ -15,4 +15,4 @@ const SkillCard = ({ title, text }: Props) => (
     </div>
 );
 
-export default SkillCard;
+export default SkillDescription;
