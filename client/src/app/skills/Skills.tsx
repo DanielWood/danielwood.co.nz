@@ -35,22 +35,20 @@ const Card = ({ img: image, yOffset = 0 }) => {
 };
 
 const SkillCards = ({}) => {
-    const cardsRef = useRef<THREE.Group>(null!);
-    const wheelCtx = useStickyWheel(0, skills.length - 1);
+    const stickyWheel = useStickyWheel(0, skills.length - 1);
 
-    const { clock } = useThree();
     const lastTick = useRef<number>(null!);
-    useFrame(({ camera }) => {
+    useFrame(({ camera, clock }) => {
         // Sticky scrolling code
-        const scroll = wheelCtx.getScroll();
+        const scroll = stickyWheel.getScroll();
         const now = clock.getElapsedTime();
         const dt = now - (lastTick.current || 0);
         lastTick.current = now;
 
         const startPos = new Vector3(-5, 1, -15);
-        const endPos = new Vector3(wheelCtx.getTarget() * 20, 1, 15);
+        const endPos = new Vector3(stickyWheel.getTarget() * 20, 1, 15);
 
-        camera.position.x += wheelCtx.getNudge();
+        camera.position.x += stickyWheel.getNudge();
 
         camera.position.lerp(endPos, 0.1);
     });

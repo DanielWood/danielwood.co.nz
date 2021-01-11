@@ -116,7 +116,6 @@ export const useStickyWheel = (
         lastDeltaY.current = dy;
     });
 
-    // Returns function to unstick the scroll.current
     return {
         getScroll: () => min + scroll.current * step,
         getTarget: () => target.current,
