@@ -22,28 +22,6 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type ReduxProps = ConnectedProps<typeof connector>;
 type Props = ReduxProps;
 
-const Boxes = () => {
-    const { size, viewport } = useThree();
-    const pointLight = useRef<PointLight>(null!);
-    const aspect = size.width / viewport.width;
-
-    // useFrame((state) => {
-    //     pointLight.current.position.set(state.mouse.x
-    // });
-
-    return (
-        <>
-            <ambientLight intensity={0.3} />
-            <pointLight ref={pointLight} position={[0, 0, 30]} args={['white', 1.5, 100]} />
-
-            <mesh position={[0, 0, 0]}>
-                <boxBufferGeometry attach="geometry" args={[5, 5, 5]} />
-                <meshPhongMaterial attach="material" color="red" />
-            </mesh>
-        </>
-    );
-};
-
 const colors = [0x490009, 0xac0e28, 0xbc4558, 0x013766, 0x010a1c];
 
 const Particles = ({ count = 100, spacing = 25, size = 0.5 }) => {
@@ -97,10 +75,6 @@ const Particles = ({ count = 100, spacing = 25, size = 0.5 }) => {
         particle.current.instanceMatrix.needsUpdate = true;
     });
 
-    useEffect(() => {
-        console.log(colorArray);
-    });
-
     return (
         <>
             <pointLight ref={light} position={[0, 0, 30]} args={['white', 3.5, 1000]} />
@@ -137,8 +111,8 @@ const Splash = ({ closeSplash }: Props) => {
 
             {/* Brand */}
             <div className="absolute top-0 w-screen h-screen pointer-events-none">
-                <div className="flex h-full justify-center md:justify-start md:items-center md:ml-12 lg:ml-16">
-                    <div className="block">
+                <div className="flex h-full justify-center md:justify-start md:ml-12 lg:ml-16">
+                    <div className="block md:mb-32 md:mt-auto mt-2">
                         <h1 className="h-16 text-5xl text-white">
                             <span className="font-extrabold">DANIEL</span>
                             <span className="font-hairline ml-1">WOOD</span>

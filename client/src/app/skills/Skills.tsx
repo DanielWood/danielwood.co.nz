@@ -1,13 +1,11 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { Canvas, useFrame, useThree } from 'react-three-fiber';
-import { OrbitControls, FlyControls, TransformControls } from 'drei';
-import { useStickyWheel } from '@/hooks/wheel';
+import { Canvas, useFrame } from 'react-three-fiber';
+import { FlyControls } from 'drei';
 import { useThrottle } from '@react-hook/throttle';
-import SkillDescription from './SkillDescription';
+import { useStickyWheel } from '@/hooks/wheel';
 import APIDesign from './APIDesign';
 import UIDesign from './UIDesign';
-import PositionGUI from '@/app/common/PositionGUI';
 import skills from './store';
 import myVertexShader from '@/res/shaders/myVertexShader.glsl';
 import myFragmentShader from '@/res/shaders/myFragmentShader.glsl';
@@ -63,22 +61,6 @@ const SkillCards = ({}) => {
     );
 };
 
-const Overlay = ({}) => {
-    const [position, setPosition] = useThrottle(new THREE.Vector3(), 20);
-    const [rotation, setRotation] = useThrottle(new THREE.Euler(), 20);
-
-    useFrame(({ camera }) => {
-        setPosition(camera.position);
-        setRotation(camera.rotation);
-    });
-
-    return (
-        <>
-            <PositionGUI position={position} rotation={rotation} />
-        </>
-    );
-};
-
 const Skills = ({}) => {
     return (
         <>
@@ -107,9 +89,6 @@ const Skills = ({}) => {
                     <SkillCards />
                     <FlyControls autoForward={false} dragToLook rollSpeed={0.05} movementSpeed={2} />
                 </Canvas>
-            </div>
-            <div className="fixed w-auto h-auto top-0 right-0">
-                <Overlay />
             </div>
         </>
     );
