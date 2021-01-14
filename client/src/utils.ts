@@ -6,4 +6,12 @@ export default {
     lerp: (from: number, to: number, t: number) => {
         return (1 - t) * from + t * to;
     },
+    toFixedVector(vector, precision = 2) {
+        return {
+            ...vector,
+            x: vector.x.toFixed(precision),
+            y: vector.y.toFixed(precision),
+            z: vector.z.toFixed(precision),
+        };
+    },
 };

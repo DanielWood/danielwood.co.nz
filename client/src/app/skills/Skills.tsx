@@ -1,14 +1,16 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from 'react-three-fiber';
-import { OrbitControls } from 'drei';
+import { OrbitControls, FlyControls, TransformControls } from 'drei';
 import { useStickyWheel } from '@/hooks/wheel';
+import { useThrottle } from '@react-hook/throttle';
 import SkillDescription from './SkillDescription';
-import ApiDesign from './ApiDesign';
+import APIDesign from './APIDesign';
+import UIDesign from './UIDesign';
+import PositionGUI from '@/app/common/PositionGUI';
 import skills from './store';
 import myVertexShader from '@/res/shaders/myVertexShader.glsl';
 import myFragmentShader from '@/res/shaders/myFragmentShader.glsl';
-import { Vector3 } from 'three';
 
 const cardMaterial = new THREE.ShaderMaterial({
     uniforms: {
@@ -45,54 +47,69 @@ const SkillCards = ({}) => {
         const dt = now - (lastTick.current || 0);
         lastTick.current = now;
 
-        const startPos = new Vector3(-5, 1, -15);
-        const endPos = new Vector3(stickyWheel.getTarget() * 20, 1, 15);
+        const startPos = new THREE.Vector3(-5, 1, -15);
+        const endPos = new THREE.Vector3(stickyWheel.getTarget() * 20, 1, 15);
 
-        camera.position.x += stickyWheel.getNudge();
+        // camera.position.x += stickyWheel.getNudge();
 
-        camera.position.lerp(endPos, 0.1);
+        // camera.position.lerp(endPos, 0.1);
     });
 
     return (
         <>
-            <ApiDesign position={new THREE.Vector3(0, 0, 0)} />
+            <UIDesign position={new THREE.Vector3(0, 0, 45)} />
+            <APIDesign position={new THREE.Vector3(0, 0, 0)} />
         </>
-        // <group rotation={[-0.3, -0.5, -0.2]} ref={cardsRef}>
-        //     {skills.map((skill, index) => (
-        //         <Card key={index} img={skill.image} yOffset={index * -10} />
-        //     ))}
-        // </group>
+    );
+};
+
+const Overlay = ({}) => {
+    const [position, setPosition] = useThrottle(new THREE.Vector3(), 20);
+    const [rotation, setRotation] = useThrottle(new THREE.Euler(), 20);
+
+    useFrame(({ camera }) => {
+        setPosition(camera.position);
+        setRotation(camera.rotation);
+    });
+
+    return (
+        <>
+            <PositionGUI position={position} rotation={rotation} />
+        </>
     );
 };
 
 const Skills = ({}) => {
-    // Calculate sticky scrolling
-
     return (
         <>
             <div className="fixed w-screen h-screen bg-gray-200 neg-z-1">
-                <Canvas className="fixed" colorManagement shadowMap camera={{ position: [-5, 1, -15], fov: 10 }}>
-                    <ambientLight args={[0xffffff, 0.5]} />
+                <Canvas className="fixed" colorManagement shadowMap camera={{ position: [-5, 1, -15], fov: 40 }}>
+                    <ambientLight args={[0xffffff, 0.3]} />
+                    {/* <directionalLight position={[-1, 20, -1]} intensity={0.5} /> */}
                     <directionalLight
                         castShadow
-                        position={[0.25, 1, 0.25]}
+                        position={[-1, 0.5, -1]}
                         intensity={1.5}
-                        shadow-mapSize-height={512}
-                        shadow-mapSize-width={512}
+                        shadow-mapSize-width={4096}
+                        shadow-mapSize-height={4096}
+                        shadow-camera-left={-100}
+                        shadow-camera-right={100}
+                        shadow-camera-top={100}
+                        shadow-camera-bottom={-100}
+                        shadow-camera-far={100}
                     />
                     <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
                         <planeBufferGeometry attach="geometry" args={[100, 100]} />
-                        <meshStandardMaterial attach="material" color="white" />
+                        <shadowMaterial attach="material" color={0xffffff} />
+                        {/* <meshBasicMaterial attach="material" color="blue" /> */}
                     </mesh>
-                    <gridHelper args={[60, 30]} position={[0, -1, 0]} />
+                    {/* <gridHelper args={[100, 100]} position={[0, -1, 0]} /> */}
                     <SkillCards />
-                    <OrbitControls />
+                    <FlyControls autoForward={false} dragToLook rollSpeed={0.05} movementSpeed={2} />
                 </Canvas>
             </div>
-            <div className="absolute top-0 w-full h-full">
-                {skills.map((skill, index) => (
-                    <SkillDescription key={index} title={skill.title} text={skill.text} />
-                ))}
+            <div className="fixed w-auto h-auto top-0 right-0">
+                <Overlay />
             </div>
         </>
     );

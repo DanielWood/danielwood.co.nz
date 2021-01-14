@@ -6,6 +6,7 @@
         "@babel/core": "7.9.0",
         "@react-hook/debounce": "^3.0.0",
         "@react-hook/event": "^1.2.3",
+        "@react-hook/throttle": "^2.2.0",
         "@svgr/webpack": "4.3.3",
         "@testing-library/jest-dom": "^4.2.4",
         "@testing-library/react": "^9.3.2",
@@ -155,7 +156,8 @@
             "json",
             "web.jsx",
             "jsx",
-            "node"
+            "node",
+            "glsl"
         ],
         "watchPlugins": [
             "jest-watch-typeahead/filename",

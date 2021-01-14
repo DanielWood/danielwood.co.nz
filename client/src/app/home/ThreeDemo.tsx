@@ -79,7 +79,7 @@ const Points = ({ separation = 20, amountX = 50, amountY = 50 }) => {
 
     return (
         <instancedMesh ref={point} args={[null!, null!, numParticles]}>
-            <sphereBufferGeometry attach="geometry" args={[5, 12, 12]}></sphereBufferGeometry>
+            <sphereBufferGeometry attach="geometry" args={[5, 12, 12]} />
             <meshPhongMaterial attach="material" color="white" />
         </instancedMesh>
     );

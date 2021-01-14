@@ -1,7 +1,7 @@
 import React from 'react';
 import * as THREE from 'three';
 
-const ApiDesign = ({ position = new THREE.Vector3() }) => {
+const APIDesign = ({ position = new THREE.Vector3() }) => {
     return (
         <mesh castShadow position={position}>
             <boxBufferGeometry attach="geometry" args={[1, 1, 1]} />
@@ -10,4 +10,4 @@ const ApiDesign = ({ position = new THREE.Vector3() }) => {
     );
 };
 
-export default ApiDesign;
+export default APIDesign;

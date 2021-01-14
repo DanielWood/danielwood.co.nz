@@ -2,25 +2,42 @@
 
 @font-face {
     font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    src: local('Open Sans Regular'), local('OpenSans-Regular'),
-        url('../res/fonts/OpenSans-Regular.ttf') format('ttf');
+    src: local('Open Sans'), url('../res/fonts/OpenSans-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 800;
+    src: local('Open Sans'), url('../res/fonts/OpenSans-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 300;
+    src: local('Open Sans'), url('../res/fonts/OpenSans-Light.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    font-weight: 200;
+    src: local('Open Sans'), url('../res/fonts/OpenSans-Lighter.ttf') format('truetype');
 }
 
 html,
 body,
 #root,
 #root > div {
-    @apply h-full;
-    @apply min-h-full;
+    @apply h-screen;
+    @apply min-h-screen;
     @apply text-gray-700;
-    font-family: 'Open Sans', sans-serif;
+    /* font-family: 'Open Sans', 'Times New Roman', Times, serif; */
+    font-family: 'Open Sans', 'Times New Roman', serif;
 }
 
 @tailwind components;
 @tailwind utilities;
 
+/* Additional heights */
 .h-9 {
     height: 2.25rem;
 }
@@ -41,6 +58,7 @@ body,
     height: 3.75rem;
 }
 
+/* Absolute alignment */
 .top-1\/2 {
     top: 50%;
 }
@@ -57,6 +75,20 @@ body,
     right: 50%;
 }
 
+.left-2\/5 {
+    left: 40%;
+}
+
+.right-2\/5 {
+    right: 40%;
+}
+
+/* Z-order utils */
 .neg-z-1 {
     z-index: -1;
+}
+
+/* SVG */
+.fill-transparent {
+    fill: transparent;
 }

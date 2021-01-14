@@ -6,6 +6,7 @@ import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
 import logo from '@/res/svg/DanielWood.svg';
 import { PointLight, Vector3 } from 'three';
+import ScrollCue from '@/app/common/ScrollCue';
 import gsap from 'gsap';
 
 const mapStateToProps = ({ home }: RootState) => ({
@@ -43,13 +44,12 @@ const Boxes = () => {
     );
 };
 
-// const colors = [0x00429d, 0x2e59a8, 0x4771b2, 0x5d8abd, 0x73a2c6, 0x8abccf, 0xa5d5d8, 0xc5eddf, 0xffffe0];
-const colors = [0x540d6e, 0xee4266, 0x0090c1, 0x2cda9d, 0xffd23f];
+const colors = [0x490009, 0xac0e28, 0xbc4558, 0x013766, 0x010a1c];
 
-const Particles = ({ count = 100, size = 5 }) => {
+const Particles = ({ count = 100, spacing = 25, size = 0.5 }) => {
     const particle = useRef<THREE.InstancedMesh>(null!);
+    const light = useRef<THREE.PointLight>(null!);
 
-    // Generate random color array
     const colorArray = useMemo(() => {
         let tempColor = new THREE.Color();
         return Float32Array.from(
@@ -67,23 +67,29 @@ const Particles = ({ count = 100, size = 5 }) => {
             .map(
                 () =>
                     new THREE.Vector3(
-                        (Math.random() * 2 - 1) * 25,
-                        (Math.random() * 2 - 1) * 25,
-                        (Math.random() * 2 - 1) * 25
+                        (Math.random() * 2 - 1) * spacing,
+                        (Math.random() * 2 - 1) * spacing,
+                        (Math.random() * 2 - 1) * spacing
                     )
             );
     }, [count]);
 
+    const scales = useMemo(() => new Array(count).fill(0).map(() => Math.random() * size), [count]);
+
     const tempObject = useMemo(() => new THREE.Object3D(), []);
 
-    useFrame(({ clock }) => {
+    useFrame(({ clock, mouse }) => {
         let time = clock.elapsedTime;
+
+        light.current.position.z = THREE.MathUtils.lerp(light.current.position.z, mouse.x * -100, 0.05);
+        light.current.position.y = THREE.MathUtils.lerp(light.current.position.y, mouse.y * 100, 0.05);
 
         let id = 0;
         for (let i = 0; i < count; i++) {
             tempObject.position.x = positions[i].x + Math.cos(time / 3 + i);
             tempObject.position.y = positions[i].y + Math.sin(time / 1 + i);
             tempObject.position.z = positions[i].z - Math.cos(time / 6 + i);
+            tempObject.scale.set(scales[i], scales[i], scales[i]);
 
             tempObject.updateMatrix();
             particle.current.setMatrixAt(i, tempObject.matrix);
@@ -96,20 +102,23 @@ const Particles = ({ count = 100, size = 5 }) => {
     });
 
     return (
-        <instancedMesh ref={particle} args={[null!, null!, count]}>
-            <sphereBufferGeometry attach="geometry" args={[0.2, 10, 10]}>
-                <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 3]} />
-            </sphereBufferGeometry>
-            <meshToonMaterial attach="material" vertexColors={THREE.VertexColors as any} />
-        </instancedMesh>
+        <>
+            <pointLight ref={light} position={[0, 0, 30]} args={['white', 3.5, 1000]} />
+            <instancedMesh ref={particle} args={[null!, null!, count]}>
+                <sphereBufferGeometry attach="geometry" args={[1, 10, 10]}>
+                    <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 3]} />
+                </sphereBufferGeometry>
+                <meshToonMaterial attach="material" vertexColors={THREE.VertexColors as any} />
+            </instancedMesh>
+        </>
     );
 };
 
 // Custom camera rig
 const Rig = ({ lookAt = new THREE.Vector3() }) => {
     useFrame(({ camera, mouse, clock }) => {
-        camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -8, 0.08);
-        camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 8, 0.08);
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -1, 0.08);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 1, 0.08);
         camera.lookAt(lookAt);
     });
 
@@ -120,23 +129,27 @@ const Splash = ({ closeSplash }: Props) => {
     const mousePosition = useRef([0, 0]);
 
     return (
-        <div className="w-full h-full absolute bg-gray-900 select-none">
-            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [25, 0, 0], fov: 90 }}>
-                <Boxes />
-                <Particles count={1000} />
+        <div className="w-full h-screen absolute bg-blue-500 select-none">
+            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [5, 0, 0], fov: 90 }}>
+                <Particles count={500} spacing={12} size={0.3} />
                 <Rig />
             </Canvas>
 
-            {/* Brand & exit button */}
-            <div className="absolute top-1/2 left-0 ml-24">
-                <img className="h-16" src={logo} alt="Daniel Wood" />
-                <h1
-                    className="mx-auto bg-white text-center cursor-pointer tracking-wide font-hairline"
-                    onClick={closeSplash}
-                >
-                    CLICK HERE TO CONTINUE
-                </h1>
+            {/* Brand */}
+            <div className="absolute top-0 w-screen h-screen pointer-events-none">
+                <div className="flex h-full justify-center md:justify-start md:items-center md:ml-12 lg:ml-16">
+                    <div className="block">
+                        <h1 className="h-16 text-5xl text-white">
+                            <span className="font-extrabold">DANIEL</span>
+                            <span className="font-hairline ml-1">WOOD</span>
+                        </h1>
+                        <h1 className="mx-auto bg-white text-center text-lg font-normal">FULL STACK DEVELOPER</h1>
+                    </div>
+                </div>
             </div>
+
+            {/* Scroll Cue */}
+            <ScrollCue className="fixed w-1/5 left-2/5 right-2/5 bottom-0 mb-2 text-gray-100" />
         </div>
     );
 };
