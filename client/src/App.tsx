@@ -1,12 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Splash from '@/app/home/Splash';
-import ThreeDemo from '@/app/home/ThreeDemo';
+import Skills from '@/app/skills/Skills';
 
 function App() {
     return (
         <div id="app">
             <Router>
+                {/* <Skills /> */}
                 <Splash />
                 {/* <ThreeDemo /> */}
             </Router>

@@ -4,6 +4,9 @@
     "private": true,
     "dependencies": {
         "@babel/core": "7.9.0",
+        "@react-hook/debounce": "^3.0.0",
+        "@react-hook/event": "^1.2.3",
+        "@react-hook/throttle": "^2.2.0",
         "@svgr/webpack": "4.3.3",
         "@testing-library/jest-dom": "^4.2.4",
         "@testing-library/react": "^9.3.2",
@@ -30,6 +33,7 @@
         "css-loader": "3.4.2",
         "dotenv": "8.2.0",
         "dotenv-expand": "5.1.0",
+        "drei": "^2.2.13",
         "eslint": "^6.6.0",
         "eslint-config-react-app": "^5.2.1",
         "eslint-loader": "3.0.3",
@@ -55,6 +59,7 @@
         "postcss-normalize": "8.0.1",
         "postcss-preset-env": "6.7.0",
         "postcss-safe-parser": "4.0.1",
+        "raw-loader": "^4.0.2",
         "react": "^17.0.0",
         "react-app-polyfill": "^1.0.6",
         "react-dev-utils": "^10.2.1",
@@ -151,7 +156,8 @@
             "json",
             "web.jsx",
             "jsx",
-            "node"
+            "node",
+            "glsl"
         ],
         "watchPlugins": [
             "jest-watch-typeahead/filename",

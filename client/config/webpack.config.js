@@ -351,11 +351,16 @@ module.exports = function (webpackEnv) {
                     // match the requirements. When no loader matches it will fall
                     // back to the "file" loader at the end of the loader list.
                     oneOf: [
+                        // Load .glsl shader files as raw strings
+                        {
+                            test: [/\.glsl$/],
+                            loader: require.resolve('raw-loader'),
+                        },
                         // "url" loader works like "file" loader except that it embeds assets
                         // smaller than specified limit in bytes as data URLs to avoid requests.
                         // A missing `test` is equivalent to a match.
                         {
-                            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+                            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, /\.ttf$/],
                             loader: require.resolve('url-loader'),
                             options: {
                                 limit: imageInlineSizeLimit,
