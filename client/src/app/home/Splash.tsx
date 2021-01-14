@@ -1,13 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import * as THREE from 'three';
-import { Canvas, useFrame, useThree } from 'react-three-fiber';
+import { Canvas, useFrame } from 'react-three-fiber';
+import { Box, Cylinder } from 'drei';
 import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
 import logo from '@/res/svg/DanielWood.svg';
 import { PointLight, Vector3 } from 'three';
 import ScrollCue from '@/app/common/ScrollCue';
 import gsap from 'gsap';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import gate from '@/res/models/gate0.gltf';
 
 const mapStateToProps = ({ home }: RootState) => ({
     isSplashOpen: home.isSplashOpen,
@@ -23,6 +26,26 @@ type ReduxProps = ConnectedProps<typeof connector>;
 type Props = ReduxProps;
 
 const colors = [0x490009, 0xac0e28, 0xbc4558, 0x013766, 0x010a1c];
+
+// const Gate = ({}) => {
+//     const gltf = useLoader(GLTFLoader, gate);
+//     gltf.scene.scale.set(0.2, 0.2, 0.2);
+
+//     return <primitive object={gltf.scene} position={[0, 0, 0]}>
+//         <meshToonMaterial attach="material" color="hotpink" />
+//         </primitive>;
+// };
+
+const Gate = ({}) => {
+    const material = useMemo(() => new THREE.MeshToonMaterial({ color: 'red' }), []);
+    return (
+        <group>
+            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, -2]} material={material} />
+            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, 2]} material={material} />
+            <Box args={[0.5, 1, 5]} position={[0, 2, 0]} material={material} />
+        </group>
+    );
+};
 
 const Particles = ({ count = 100, spacing = 25, size = 0.5 }) => {
     const particle = useRef<THREE.InstancedMesh>(null!);
@@ -108,6 +131,7 @@ const Splash = ({ closeSplash }: Props) => {
         <div className="w-full h-screen absolute bg-blue-500 select-none">
             <Canvas className="absolute" colorManagement shadowMap camera={{ position: [5, 0, 0], fov: 90 }}>
                 <Particles count={500} spacing={12} size={0.3} />
+                <Gate />
                 <Rig />
             </Canvas>
 
