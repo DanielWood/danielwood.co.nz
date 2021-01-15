@@ -16,8 +16,8 @@ class WarpPass extends Pass {
     camera: THREE.OrthographicCamera;
     scene: THREE.Scene;
     quad: THREE.Mesh;
-    time: number;
-    factor: number;
+    time: number = 0;
+    factor: number = 0;
     uniforms = {
         byp: { value: 0 },
         tex: { type: 't', value: null },
@@ -40,9 +40,6 @@ class WarpPass extends Pass {
         this.scene = new THREE.Scene();
         this.quad = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), null);
         this.scene.add(this.quad);
-        this.factor = 0;
-        this.time = 0;
-        console.log(this);
     }
 
     public render(
