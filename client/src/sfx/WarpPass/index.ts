@@ -1,12 +1,5 @@
-import {
-    Mesh,
-    OrthographicCamera,
-    PlaneBufferGeometry,
-    Scene,
-    ShaderMaterial,
-    Vector2,
-} from 'three';
 import * as THREE from 'three';
+import { extend } from 'react-three-fiber';
 import { Pass } from 'three/examples/jsm/postprocessing/Pass';
 import fragmentShader from './fragment.glsl';
 import vertexShader from './vertex.glsl';
@@ -29,7 +22,7 @@ class WarpPass extends Pass {
     constructor(dt_size: number = 64) {
         super();
 
-        this.uniforms.resolution.value = new Vector2(dt_size, dt_size);
+        this.uniforms.resolution.value = new THREE.Vector2(dt_size, dt_size);
         this.material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
             vertexShader,
@@ -69,5 +62,7 @@ class WarpPass extends Pass {
         }
     }
 }
+
+extend({ WarpPass });
 
 export default WarpPass;

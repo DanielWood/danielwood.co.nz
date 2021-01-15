@@ -16,6 +16,7 @@ import { LuminosityHighPassShader } from 'three/examples/jsm/shaders/LuminosityH
 
 import vertexShader from './vertex.glsl';
 import fragmentShader from './fragment.glsl';
+import { extend } from 'react-three-fiber';
 
 /**
  * UnrealBloomPass is inspired by the bloom pass of Unreal Engine. It creates a
@@ -374,5 +375,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(Pass.prototype), {
 
 UnrealBloomPass.BlurDirectionX = new Vector2(1.0, 0.0);
 UnrealBloomPass.BlurDirectionY = new Vector2(0.0, 1.0);
+
+extend({ UnrealBloomPass });
 
 export default UnrealBloomPass;

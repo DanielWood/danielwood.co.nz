@@ -4,8 +4,8 @@ import { extend, useFrame, useThree } from 'react-three-fiber';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 // import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import UnrealBloomPass from '@/app/effects/UnrealBloomPass';
-import WarpPass from '@/app/effects/WarpPass';
+import UnrealBloomPass from '@/sfx/UnrealBloomPass';
+import WarpPass from '@/sfx/WarpPass';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass';
 import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass';
@@ -14,10 +14,8 @@ extend({
     EffectComposer,
     RenderPass,
     GlitchPass,
-    UnrealBloomPass,
     FilmPass,
     ClearPass,
-    WarpPass,
 });
 
 const Effects = ({}) => {
