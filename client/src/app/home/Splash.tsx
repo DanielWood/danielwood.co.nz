@@ -1,16 +1,18 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import * as THREE from 'three';
-import { Canvas, useFrame } from 'react-three-fiber';
+import { Canvas, useFrame, useThree } from 'react-three-fiber';
 import { Box, Cylinder } from 'drei';
+import useEvent from '@react-hook/event';
 import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
-import logo from '@/res/svg/DanielWood.svg';
-import { PointLight, Vector3 } from 'three';
 import ScrollCue from '@/app/common/ScrollCue';
-import gsap from 'gsap';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import gate from '@/res/models/gate0.gltf';
+import Effects from '@/app/common/Effects.jsx';
+
+import vertexShader from '@/res/shaders/myVertexShader.glsl';
+import fragmentShader from '@/res/shaders/myFragmentShader.glsl';
+import { Vector2 } from 'three';
+import { useStickyWheel } from '@/hooks/wheel';
 
 const mapStateToProps = ({ home }: RootState) => ({
     isSplashOpen: home.isSplashOpen,
@@ -36,88 +38,104 @@ const colors = [0x490009, 0xac0e28, 0xbc4558, 0x013766, 0x010a1c];
 //         </primitive>;
 // };
 
-const Gate = ({}) => {
-    const material = useMemo(() => new THREE.MeshToonMaterial({ color: 'red' }), []);
+const Logo = ({}) => {
+    const localPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-0.8, 0.0, 0), 0.8), []);
+    const globalPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0.1), []);
+    const { gl } = useThree();
+    useEffect(() => {
+        // gl.clippingPlanes = [globalPlane];
+        gl.localClippingEnabled = true;
+    });
+
+    const knot = useRef<THREE.Mesh>(null!);
+    const knot2 = useRef<THREE.Mesh>(null!);
+    useFrame(({ clock }) => {
+        knot.current.rotation.y = clock.getElapsedTime() * 1;
+        knot2.current.rotation.y = clock.getElapsedTime() * 1;
+
+        knot.current.rotation.z = clock.getElapsedTime() * 2;
+        knot2.current.rotation.z = clock.getElapsedTime() * 2;
+    });
+
     return (
-        <group>
-            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, -2]} material={material} />
-            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, 2]} material={material} />
-            <Box args={[0.5, 1, 5]} position={[0, 2, 0]} material={material} />
+        <group rotation={[0, Math.PI / 2, 0]}>
+            <mesh ref={knot}>
+                <torusKnotBufferGeometry attach="geometry" args={[2, 0.55, 180, 20, 2, 3]} />
+                <meshStandardMaterial
+                    color="red"
+                    emissive={new THREE.Color(0x00ff0a)}
+                    emissiveIntensity={0.1}
+                    side={THREE.DoubleSide}
+                    attach="material"
+                    clippingPlanes={[localPlane, globalPlane]}
+                />
+            </mesh>
+            <mesh ref={knot2}>
+                <torusKnotBufferGeometry attach="geometry" args={[2, 0.5, 180, 20, 2, 3]} />
+                <meshStandardMaterial color="white" attach="material" clippingPlanes={[]} />
+            </mesh>
         </group>
     );
 };
 
-const Particles = ({ count = 100, spacing = 25, size = 0.5 }) => {
-    const particle = useRef<THREE.InstancedMesh>(null!);
-    const light = useRef<THREE.PointLight>(null!);
+const Gate = ({}) => {
+    const box = useRef<THREE.Mesh>(null!);
+    // Setup auto-resize
+    const { gl, mouse } = useThree();
+    useEvent(window, 'resize', () => {
+        const x = gl.domElement.clientWidth;
+        const y = gl.domElement.clientHeight;
+        material.uniforms.u_resolution.value = new Vector2(x, y);
+    });
 
-    const colorArray = useMemo(() => {
-        let tempColor = new THREE.Color();
-        return Float32Array.from(
-            new Array(count * 3).fill(0).flatMap(() => {
-                let randomIndex = Math.floor(Math.random() * colors.length);
-                return tempColor.set(colors[randomIndex]).toArray();
-            })
-        );
-    }, [count]);
+    useEvent(window, 'mousemove', (e) => {
+        material.uniforms.u_mouse.value = new Vector2(e.clientX, e.clientY);
+    });
 
-    const positions = useMemo(
+    const material = useMemo(
         () =>
-            new Array(count)
-                .fill(0)
-                .map(
-                    () =>
-                        new THREE.Vector3(
-                            (Math.random() * 2 - 1) * spacing,
-                            (Math.random() * 2 - 1) * spacing,
-                            (Math.random() * 2 - 1) * spacing
-                        )
-                ),
-        [count]
+            new THREE.ShaderMaterial({
+                uniforms: {
+                    u_time: { value: 0.0 },
+                    u_resolution: { value: new Vector2(gl.domElement.clientWidth, gl.domElement.clientHeight) },
+                    u_mouse: { value: new Vector2(mouse.x, mouse.y) },
+                },
+                vertexShader,
+                fragmentShader,
+            }),
+        []
     );
 
-    const scales = useMemo(() => new Array(count).fill(0).map(() => Math.random() * size), [count]);
-
-    const tempObject = useMemo(() => new THREE.Object3D(), []);
-    console.log(scales);
-
-    useFrame(({ clock, mouse }) => {
-        let time = clock.elapsedTime;
-
-        light.current.position.z = THREE.MathUtils.lerp(light.current.position.z, mouse.x * -100, 0.05);
-        light.current.position.y = THREE.MathUtils.lerp(light.current.position.y, mouse.y * 100, 0.05);
-
-        let id = 0;
-        for (let i = 0; i < count; i++) {
-            tempObject.position.x = positions[i].x + Math.cos(time / 3 + i);
-            tempObject.position.y = positions[i].y + Math.sin(time / 1 + i);
-            tempObject.position.z = positions[i].z - Math.cos(time / 6 + i);
-            tempObject.scale.set(scales[i], scales[i], scales[i]);
-
-            tempObject.updateMatrix();
-            particle.current.setMatrixAt(i, tempObject.matrix);
-        }
-        particle.current.instanceMatrix.needsUpdate = true;
+    // Update material uniforms
+    useFrame(({ clock }) => {
+        material.uniforms.u_time.value = clock.getElapsedTime();
     });
 
     return (
-        <>
-            <pointLight ref={light} position={[0, 0, 30]} args={['white', 3.5, 1000]} />
-            <instancedMesh ref={particle} args={[null!, null!, count]}>
-                <sphereBufferGeometry attach="geometry" args={[1, 10, 10]}>
-                    <instancedBufferAttribute attachObject={['attributes', 'color']} args={[colorArray, 3]} />
-                </sphereBufferGeometry>
-                <meshToonMaterial attach="material" vertexColors={THREE.VertexColors as any} />
-            </instancedMesh>
-        </>
+        <group>
+            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, -2]} material={material} />
+            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, 2]} material={material} />
+            <Box ref={box} args={[0.5, 1, 5]} position={[0, 2, 0]} material={material} />
+        </group>
     );
 };
 
 // Custom camera rig
 const Rig = ({ lookAt = new THREE.Vector3() }) => {
+    const wheel = useStickyWheel(0, 1, 1);
+    const from = useMemo(() => new THREE.Vector3(5, 0, 0), []);
+    const to = useMemo(() => new THREE.Vector3(20, -20, -45), []);
+
+    // const { gl } = useThree();
+    // useEffect(() => {
+    //     gl.setClearColor('navy');
+    // });
+
     useFrame(({ camera, mouse, clock }) => {
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -1, 0.08);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 1, 0.08);
+
+        camera.position.lerp([from, to][wheel.getTarget()], 0.05);
         camera.lookAt(lookAt);
     });
 
@@ -130,9 +148,12 @@ const Splash = ({ closeSplash }: Props) => {
     return (
         <div className="w-full h-screen absolute bg-blue-500 select-none">
             <Canvas className="absolute" colorManagement shadowMap camera={{ position: [5, 0, 0], fov: 90 }}>
-                <Particles count={500} spacing={12} size={0.3} />
-                <Gate />
                 <Rig />
+                <ambientLight intensity={0.4} />
+                <directionalLight color="white" position={[0, 2, 1]} intensity={1.5} />
+                {/* <Gate /> */}
+                <Logo />
+                <Effects />
             </Canvas>
 
             {/* Brand */}

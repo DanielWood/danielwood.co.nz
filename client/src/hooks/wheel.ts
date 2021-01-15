@@ -76,7 +76,7 @@ export const useStickyWheel = (
             speed * deltaSec
         );
 
-        // Dampen nudge velocity
+        // Dampen nudge
         nudge.current = Utils.lerp(nudge.current, 0, damping * deltaSec);
 
         window.requestAnimationFrame(tick);
