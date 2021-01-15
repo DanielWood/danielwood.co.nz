@@ -1,13 +1,13 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import * as THREE from 'three';
-import { Canvas, useFrame, useThree } from 'react-three-fiber';
+import { Canvas, extend, useFrame, useThree } from 'react-three-fiber';
 import { Box, Cylinder } from 'drei';
 import useEvent from '@react-hook/event';
 import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
 import ScrollCue from '@/app/common/ScrollCue';
-import Effects from '@/app/common/Effects';
+import Effects from '@/app/common/Effects.jsx';
 
 import vertexShader from '@/res/shaders/myVertexShader.glsl';
 import fragmentShader from '@/res/shaders/myFragmentShader.glsl';
@@ -29,12 +29,11 @@ type Props = ReduxProps;
 
 const colors = [0x490009, 0xac0e28, 0xbc4558, 0x013766, 0x010a1c];
 
-const Logo = ({}) => {
+const Logo = ({ position = new THREE.Vector3() }) => {
     const localPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-0.8, 0.0, 0), 0.8), []);
     const globalPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0.1), []);
     const { gl } = useThree();
     useEffect(() => {
-        // gl.clippingPlanes = [globalPlane];
         gl.localClippingEnabled = true;
     });
 
@@ -42,22 +41,21 @@ const Logo = ({}) => {
     const knot2 = useRef<THREE.Mesh>(null!);
     useFrame(({ clock, mouse }) => {
         knot.current.rotation.y = knot2.current.rotation.y = clock.getElapsedTime() * 1;
-
         knot.current.rotation.z = knot2.current.rotation.z = clock.getElapsedTime() * 2;
-
-        knot.current.position.x = knot2.current.position.x = THREE.MathUtils.lerp(
-            knot.current.position.x,
-            mouse.x * 5,
-            0.05
-        );
+        // knot.current.position.x = knot2.current.position.x = THREE.MathUtils.lerp(
+        //     knot.current.position.x,
+        //     mouse.x * 5,
+        //     0.05
+        // );
     });
 
     return (
-        <group rotation={[0, Math.PI / 2, 0]}>
+        <group position={position} rotation={[0, Math.PI / 2, 0]}>
+            {/* <pointLight intensity={2} position={[15, 0, 0]} castShadow /> */}
             <mesh ref={knot}>
-                <torusKnotBufferGeometry attach="geometry" args={[2, 0.55, 180, 20, 2, 3]} />
+                <torusKnotBufferGeometry attach="geometry" args={[1.5, 0.55, 180, 20, 2, 3]} />
                 <meshToonMaterial
-                    color="white"
+                    color="green"
                     emissive={new THREE.Color(0x00ff0a)}
                     emissiveIntensity={0.1}
                     side={THREE.DoubleSide}
@@ -66,51 +64,22 @@ const Logo = ({}) => {
                 />
             </mesh>
             <mesh ref={knot2}>
-                <torusKnotBufferGeometry attach="geometry" args={[2, 0.5, 180, 20, 2, 3]} />
+                <torusKnotBufferGeometry attach="geometry" args={[1.5, 0.5, 180, 20, 2, 3]} />
                 <meshStandardMaterial color="blue" attach="material" clippingPlanes={[]} />
             </mesh>
         </group>
     );
 };
 
-const Gate = ({}) => {
-    const box = useRef<THREE.Mesh>(null!);
-    // Setup auto-resize
-    const { gl, mouse } = useThree();
-    useEvent(window, 'resize', () => {
-        const x = gl.domElement.clientWidth;
-        const y = gl.domElement.clientHeight;
-        material.uniforms.u_resolution.value = new Vector2(x, y);
-    });
-
-    useEvent(window, 'mousemove', (e) => {
-        material.uniforms.u_mouse.value = new Vector2(e.clientX, e.clientY);
-    });
-
-    const material = useMemo(
-        () =>
-            new THREE.ShaderMaterial({
-                uniforms: {
-                    u_time: { value: 0.0 },
-                    u_resolution: { value: new Vector2(gl.domElement.clientWidth, gl.domElement.clientHeight) },
-                    u_mouse: { value: new Vector2(mouse.x, mouse.y) },
-                },
-                vertexShader,
-                fragmentShader,
-            }),
-        []
-    );
-
-    // Update material uniforms
-    useFrame(({ clock }) => {
-        material.uniforms.u_time.value = clock.getElapsedTime();
-    });
-
+const Arch = ({ position = new THREE.Vector3(), spread = 4 }) => {
     return (
-        <group>
-            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, -2]} material={material} />
-            <Cylinder args={[0.3, 0.4, 4, 15]} position={[0, 0, 2]} material={material} />
-            <Box ref={box} args={[0.5, 1, 5]} position={[0, 2, 0]} material={material} />
+        <group position={position}>
+            <Box args={[0.5, 5, 0.5]} position={[0, 0, -spread]}>
+                <meshStandardMaterial attach="material" color="red" />
+            </Box>
+            <Box args={[0.5, 5, 0.5]} position={[0, 0, spread]}>
+                <meshStandardMaterial attach="material" color="red" />
+            </Box>
         </group>
     );
 };
@@ -118,36 +87,64 @@ const Gate = ({}) => {
 // Custom camera rig
 const Rig = ({ lookAt = new THREE.Vector3() }) => {
     const wheel = useStickyWheel(0, 1, 1);
-    const from = useMemo(() => new THREE.Vector3(10, 0, 0), []);
-    const to = useMemo(() => new THREE.Vector3(20, -20, -45), []);
+    const start: any = useMemo(() => [new THREE.Vector3(50, 0, 0), 20], []);
+    const end: any = useMemo(() => [new THREE.Vector3(10, 0, 0), 60], []);
 
-    // const { gl } = useThree();
-    // useEffect(() => {
-    //     gl.setClearColor('navy');
-    // });
+    const keyFrames = [start, end];
+
+    const { gl } = useThree();
+    useEffect(() => {
+        gl.setClearColor('navy');
+    });
 
     useFrame(({ camera, mouse, clock }) => {
-        // camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -10, 0.08);
-        // camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 10, 0.08);
+        // // camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -10, 0.08);
+        // // camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 10, 0.08);
+        camera.position.lerp(start[0], 0.01);
+        if (camera.type === 'PerspectiveCamera') {
+            camera = camera as THREE.PerspectiveCamera;
+            camera.fov = THREE.MathUtils.lerp(camera.fov, start[1], 0.05);
+            camera.updateProjectionMatrix();
+        }
 
-        camera.position.lerp([from, to][wheel.getTarget()], 0.05);
-        camera.lookAt(lookAt);
+        // const index = wheel.getTarget();
+        // const targetPos: THREE.Vector3 = keyFrames[index][0];
+        // const targetFov = keyFrames[index][1];
+        // const cam = camera as THREE.PerspectiveCamera;
+        // camera.position.lerp(targetPos, 0.05);
+        // const dir = targetPos.sub(camera.position).normalize();
+        // const offset = keyFrames[index ? 0 : 1][0].add(dir.multiplyScalar(wheel.getNudge()));
+        // camera.position.set(offset.x, offset.y, offset.z);
+        // cam.fov = THREE.MathUtils.lerp(cam.fov, targetFov, 0.1);
+        // camera.updateProjectionMatrix();
+        // (camera as THREE.PerspectiveCamera).fov = THREE.MathUtils.lerp(
+        // camera.position.lerp([from, to][wheel.getTarget()], 0.05);
+        // camera.lookAt(lookAt);
     });
 
     return <></>;
 };
 
+const archWays = [25, 20, 15, 10, 5, 0, -5, -10, -15, -20, -25];
+// const archWays = [5, 0, -5, -10, -15, -20, -25, -30, -35, -40, -45, -50];
+
 const Splash = ({ closeSplash }: Props) => {
     const mousePosition = useRef([0, 0]);
 
     return (
-        <div className="w-full h-screen absolute bg-blue-500 select-none">
-            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [10, 0, 0], fov: 90 }}>
+        <div className="w-full h-screen absolute bg-white select-none">
+            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [30, 0, 0], fov: 50 }}>
                 <Rig />
                 <ambientLight intensity={0.4} />
-                <directionalLight color="white" position={[0, 2, 1]} intensity={1.5} />
-                {/* <Gate /> */}
-                <Logo />
+                <directionalLight color="white" castShadow position={[0, 2, 1]} intensity={3.5} />
+                <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]}>
+                    <planeBufferGeometry attach="geometry" args={[100, 100]} />
+                    <meshPhongMaterial attach="material" color={0x2e2e2e} />
+                </mesh>
+                {archWays.map((x, id) => (
+                    <Arch key={id} position={new THREE.Vector3(x, 0, 0)} />
+                ))}
+                <Logo position={new THREE.Vector3(0, 0, 0)} />
                 <Effects />
             </Canvas>
 
@@ -159,7 +156,9 @@ const Splash = ({ closeSplash }: Props) => {
                             <span className="font-extrabold">DANIEL</span>
                             <span className="font-hairline ml-1">WOOD</span>
                         </h1>
-                        <h1 className="mx-auto bg-white text-center text-lg font-normal">FULL STACK DEVELOPER</h1>
+                        <h1 className="mx-auto bg-white text-gray-900 text-center text-lg font-normal">
+                            FULL STACK DEVELOPER
+                        </h1>
                     </div>
                 </div>
             </div>
