@@ -3,12 +3,10 @@ import * as THREE from 'three';
 import { extend, useFrame, useThree } from 'react-three-fiber';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
-// import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import UnrealBloomPass from '@/sfx/UnrealBloomPass';
-import WarpPass from '@/sfx/WarpPass';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass';
 import { ClearPass } from 'three/examples/jsm/postprocessing/ClearPass';
+import '@/sfx/WarpPass';
 
 extend({
     EffectComposer,
@@ -31,8 +29,8 @@ const Effects = ({}) => {
     return (
         <effectComposer ref={composer} args={[gl]}>
             <renderPass attachArray="passes" scene={scene} camera={camera} />
-            <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} />
-            <warpPass attachArray="passes" factor={0.8} />
+            {/* <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} /> */}
+            <warpPass attachArray="passes" factor={5.0} frequency={3} />
             {/* <unrealBloomPass attachArray="passes" args={[aspect, 0.3, 0.9, 0.1]} /> */}
         </effectComposer>
     );

@@ -1,21 +1,31 @@
 import * as THREE from 'three';
-import { extend } from 'react-three-fiber';
+import { extend, ReactThreeFiber } from 'react-three-fiber';
 import { Pass } from 'three/examples/jsm/postprocessing/Pass';
 import fragmentShader from './fragment.glsl';
 import vertexShader from './vertex.glsl';
+
+declare global {
+    namespace JSX {
+        interface IntrinsicElements {
+            warpPass: ReactThreeFiber.Node<WarpPass, typeof WarpPass>;
+        }
+    }
+}
 
 class WarpPass extends Pass {
     material: THREE.ShaderMaterial;
     camera: THREE.OrthographicCamera;
     scene: THREE.Scene;
     quad: THREE.Mesh;
-    time: number = 0;
-    factor: number = 0;
+    time: number = 0.0;
+    factor: number = 0.0;
+    frequency: number = 6.0;
     uniforms = {
         byp: { value: 0 },
         tex: { type: 't', value: null },
-        time: { type: 'f', value: 0.0 },
-        factor: { type: 'f', value: 0.0 },
+        time: { type: 'f', value: this.time },
+        factor: { type: 'f', value: this.factor },
+        frequency: { type: 'f', value: this.frequency },
         resolution: { type: 'v2', value: null },
     };
 
@@ -47,6 +57,7 @@ class WarpPass extends Pass {
         this.uniforms.tex.value = readBuffer.texture;
         this.uniforms.time.value = this.time;
         this.uniforms.factor.value = this.factor;
+        this.uniforms.frequency.value = this.frequency;
 
         this.time += 0.05;
         this.quad.material = this.material;

@@ -7,7 +7,7 @@ import useEvent from '@react-hook/event';
 import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
 import ScrollCue from '@/app/common/ScrollCue';
-import Effects from '@/app/common/Effects.jsx';
+import Effects from '@/app/common/Effects';
 
 import vertexShader from '@/res/shaders/myVertexShader.glsl';
 import fragmentShader from '@/res/shaders/myFragmentShader.glsl';
@@ -29,15 +29,6 @@ type Props = ReduxProps;
 
 const colors = [0x490009, 0xac0e28, 0xbc4558, 0x013766, 0x010a1c];
 
-// const Gate = ({}) => {
-//     const gltf = useLoader(GLTFLoader, gate);
-//     gltf.scene.scale.set(0.2, 0.2, 0.2);
-
-//     return <primitive object={gltf.scene} position={[0, 0, 0]}>
-//         <meshToonMaterial attach="material" color="hotpink" />
-//         </primitive>;
-// };
-
 const Logo = ({}) => {
     const localPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-0.8, 0.0, 0), 0.8), []);
     const globalPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0.1), []);
@@ -49,20 +40,24 @@ const Logo = ({}) => {
 
     const knot = useRef<THREE.Mesh>(null!);
     const knot2 = useRef<THREE.Mesh>(null!);
-    useFrame(({ clock }) => {
-        knot.current.rotation.y = clock.getElapsedTime() * 1;
-        knot2.current.rotation.y = clock.getElapsedTime() * 1;
+    useFrame(({ clock, mouse }) => {
+        knot.current.rotation.y = knot2.current.rotation.y = clock.getElapsedTime() * 1;
 
-        knot.current.rotation.z = clock.getElapsedTime() * 2;
-        knot2.current.rotation.z = clock.getElapsedTime() * 2;
+        knot.current.rotation.z = knot2.current.rotation.z = clock.getElapsedTime() * 2;
+
+        knot.current.position.x = knot2.current.position.x = THREE.MathUtils.lerp(
+            knot.current.position.x,
+            mouse.x * 5,
+            0.05
+        );
     });
 
     return (
         <group rotation={[0, Math.PI / 2, 0]}>
             <mesh ref={knot}>
                 <torusKnotBufferGeometry attach="geometry" args={[2, 0.55, 180, 20, 2, 3]} />
-                <meshStandardMaterial
-                    color="red"
+                <meshToonMaterial
+                    color="white"
                     emissive={new THREE.Color(0x00ff0a)}
                     emissiveIntensity={0.1}
                     side={THREE.DoubleSide}
@@ -72,7 +67,7 @@ const Logo = ({}) => {
             </mesh>
             <mesh ref={knot2}>
                 <torusKnotBufferGeometry attach="geometry" args={[2, 0.5, 180, 20, 2, 3]} />
-                <meshStandardMaterial color="white" attach="material" clippingPlanes={[]} />
+                <meshStandardMaterial color="blue" attach="material" clippingPlanes={[]} />
             </mesh>
         </group>
     );
@@ -123,7 +118,7 @@ const Gate = ({}) => {
 // Custom camera rig
 const Rig = ({ lookAt = new THREE.Vector3() }) => {
     const wheel = useStickyWheel(0, 1, 1);
-    const from = useMemo(() => new THREE.Vector3(5, 0, 0), []);
+    const from = useMemo(() => new THREE.Vector3(10, 0, 0), []);
     const to = useMemo(() => new THREE.Vector3(20, -20, -45), []);
 
     // const { gl } = useThree();
@@ -132,8 +127,8 @@ const Rig = ({ lookAt = new THREE.Vector3() }) => {
     // });
 
     useFrame(({ camera, mouse, clock }) => {
-        camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -1, 0.08);
-        camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 1, 0.08);
+        // camera.position.z = THREE.MathUtils.lerp(camera.position.z, mouse.x * -10, 0.08);
+        // camera.position.y = THREE.MathUtils.lerp(camera.position.y, mouse.y * 10, 0.08);
 
         camera.position.lerp([from, to][wheel.getTarget()], 0.05);
         camera.lookAt(lookAt);
@@ -147,7 +142,7 @@ const Splash = ({ closeSplash }: Props) => {
 
     return (
         <div className="w-full h-screen absolute bg-blue-500 select-none">
-            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [5, 0, 0], fov: 90 }}>
+            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [10, 0, 0], fov: 90 }}>
                 <Rig />
                 <ambientLight intensity={0.4} />
                 <directionalLight color="white" position={[0, 2, 1]} intensity={1.5} />
