@@ -6,6 +6,8 @@ import store from './store';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+const colorPallette = [0x2059e0, 0x0e8cc1, 0xeedcbc, 0xec8652, 0xcc3039];
+
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>

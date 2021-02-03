@@ -5,6 +5,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
+import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass';
 import '@/sfx/WarpPass';
 
 extend({
@@ -12,6 +13,7 @@ extend({
     RenderPass,
     FilmPass,
     UnrealBloomPass,
+    AfterimagePass,
 });
 
 const Effects = ({}) => {
@@ -30,8 +32,9 @@ const Effects = ({}) => {
             {/* <unrealBloomPass attachArray="passes" /> */}
             {/* <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} /> */}
             {/* <warpPass attachArray="passes" factor={5.0} frequency={3} /> */}
-            <warpPass attachArray="passes" factor={1.5} frequency={3} />
-            <unrealBloomPass attachArray="passes" args={[aspect, 1.5, 0.2, 0.1]} />
+            <warpPass attachArray="passes" factor={2.5} frequency={4} />
+            {/* <afterimagePass attachArray="passes" damp={-1000000.8} /> */}
+            <unrealBloomPass attachArray="passes" args={[aspect, 0.3, 0.4, 0.1]} />
             <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} />
         </effectComposer>
     );
