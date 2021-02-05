@@ -12,24 +12,17 @@ import { useFrame } from 'react-three-fiber';
 // }
 
 class Particle {
-    // position: THREE.Vector3;
-    // velocity: THREE.Vector3;
-    // radius: number;
-    // lifeTime: number;
-    // startTime: number;
-    // isAlive: boolean;
-
-    private origin: THREE.Vector3;
+    private position: THREE.Vector3;
 
     constructor(
-        private position: THREE.Vector3,
+        private origin: THREE.Vector3,
         private velocity: THREE.Vector3,
         private radius: number,
         private lifeTime: number,
         private startTime: number,
         private isAlive: boolean = true
     ) {
-        this.origin = position.clone();
+        this.position = origin.clone();
     }
 
     public update(time: number): void {
@@ -46,17 +39,9 @@ class Particle {
         this.isAlive = time < this.startTime + this.lifeTime;
     }
 
-    public getPosition(): THREE.Vector3 {
-        return this.position;
-    }
-
-    public getRadius(): number {
-        return this.radius;
-    }
-
-    public getIsAlive(): boolean {
-        return this.isAlive;
-    }
+    public getPosition = (): THREE.Vector3 => this.position;
+    public getRadius = (): number => this.radius;
+    public getIsAlive = (): boolean => this.isAlive;
 }
 
 const ParticleEmitter = ({

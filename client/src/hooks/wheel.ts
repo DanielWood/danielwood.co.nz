@@ -40,6 +40,7 @@ export const useWheelY = (fps: number = 60, callback?: (deltaY: number) => void)
 export interface StickyWheelContext {
     getScroll: () => number;
     getNudge: () => number;
+    setTarget: (target: number) => void;
     target: number;
     isTouchpad: boolean;
 }
@@ -121,8 +122,9 @@ export const useStickyWheel = (
 
     return {
         getScroll: () => min + scroll.current * step,
-        target,
         getNudge: () => nudge.current,
+        setTarget: (target: number) => (scroll.current = target),
+        target,
         isTouchpad,
     };
 };

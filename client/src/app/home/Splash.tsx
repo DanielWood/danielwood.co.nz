@@ -44,23 +44,43 @@ const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
     return <></>;
 };
 
-const Brand = ({ target }) => (
-    <div
-        className={cx(
-            'flex h-full justify-center md:justify-start md:ml-12 lg:ml-16 transition-opacity duration-500 opacity-0',
-            {
-                'opacity-100': Math.round(target) === 1,
-            }
-        )}
+const ScrollInWrapper = ({ scrollValue, targetValue, className, activeClasses, children, ...rest }) => (
+    <div className={cx(className, { [activeClasses]: scrollValue === targetValue })} {...rest}>
+        {children}
+    </div>
+);
+
+const Intro = ({ target }) => (
+    <ScrollInWrapper
+        scrollValue={target}
+        targetValue={0}
+        className="flex flex-col justify-around h-full transition-all duration-500 opacity-0"
+        activeClasses="opacity-100"
     >
-        <div className="block md:mb-32 md:mt-auto mt-2">
+        {/* Brand */}
+        <div className="block mt-4 mb-16 mx-auto">
             <h1 className="h-16 text-5xl text-gray-100">
                 <span className="font-extrabold">DANIEL</span>
                 <span className="font-hairline ml-1">WOOD</span>
             </h1>
             <h1 className="mx-auto bg-gray-100 text-gray-700 text-center text-lg font-normal">FULL STACK DEVELOPER</h1>
         </div>
-    </div>
+        <div className="block mx-auto mb-auto mt-0 w-4/5 md:w-1/3">
+            <p className="text-lg text-gray-100 font-normal tracking-tight">
+                Hey!
+                <br />
+                Welcome to my website.
+                <br />
+                I'm still working on it.
+                <br />
+                <br />
+                Feel free to <span className="font-semibold text-red-500 underline">scroll down</span> for an
+                interactive 3D experience.
+                <br />
+                <br />
+            </p>
+        </div>
+    </ScrollInWrapper>
 );
 
 const Splash = ({ closeSplash }: Props) => {
@@ -69,7 +89,7 @@ const Splash = ({ closeSplash }: Props) => {
     return (
         <div className="w-full h-screen absolute bg-blue-600 select-none">
             <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 40 }}>
-                {/* <fog args={['white', 0, 50]} /> */}
+                <fog args={['white', 0, 1000]} />
                 <Rig wheel={wheel} />
                 <ambientLight intensity={0.4} />
                 <directionalLight
@@ -99,7 +119,7 @@ const Splash = ({ closeSplash }: Props) => {
             </Canvas>
 
             <div className="absolute top-0 w-screen h-screen pointer-events-none">
-                <Brand target={wheel.target} />
+                <Intro target={wheel.target} />
             </div>
 
             {/* Scroll Cue */}
