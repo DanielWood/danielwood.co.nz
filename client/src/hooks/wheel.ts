@@ -28,7 +28,7 @@ export const useIsTouchpad = () => {
 };
 
 export const useWheelY = (fps: number = 60, callback?: (deltaY: number) => void) => {
-    const [wheelY, setWheelY] = useDebounce<number>(0, 1000 / fps);
+    const [wheelY, setWheelY] = useState<number>(0);
     useEvent(window, 'wheel', (e: WheelEvent) => {
         setWheelY(e.deltaY);
         callback && callback(e.deltaY);
@@ -39,6 +39,7 @@ export const useWheelY = (fps: number = 60, callback?: (deltaY: number) => void)
 export interface StickyWheelContext {
     getScroll: () => number;
     getTarget: () => number;
+    target: number;
     getNudge: () => number;
     isTouchpad: boolean;
 }
@@ -55,18 +56,24 @@ export const useStickyWheel = (
     const nudge = useRef(0);
     const scroll = useRef(0);
     const target = useRef(0);
+    const [targetState, setTargetState] = useState(0);
     const maxDistY = useRef(0);
     const lastDeltaY = useRef(0);
     const dys = useRef<number[]>([]);
 
     const isTouchpad = useIsTouchpad();
 
+    useEffect(() => {
+        // Round target to nearest integer
+        const newTarget = Utils.clamp(Math.round(scroll.current), min, max);
+        setTargetState(newTarget);
+    }, [target.current]);
+
     const lastTick = useRef<number>(null!);
     const tick = (t) => {
         const deltaSec = (t - lastTick.current || 0) / 1000;
         lastTick.current = t;
 
-        // Round target to nearest integer
         target.current = Utils.clamp(Math.round(scroll.current), min, max);
 
         // Lerp scroll value to target
@@ -119,6 +126,7 @@ export const useStickyWheel = (
     return {
         getScroll: () => min + scroll.current * step,
         getTarget: () => target.current,
+        target: targetState,
         getNudge: () => nudge.current,
         isTouchpad,
     };

@@ -1,20 +1,15 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import * as THREE from 'three';
-import { Canvas, extend, useFrame, useThree } from 'react-three-fiber';
-import { Box, Cylinder, OrbitControls, softShadows } from 'drei';
-import useEvent from '@react-hook/event';
+import { Canvas, useFrame, useThree } from 'react-three-fiber';
+import { useStickyWheel } from '@/hooks/wheel';
+import cx from 'classnames';
 import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
 import ScrollCue from '@/app/common/ScrollCue';
 import Effects from '@/app/common/Effects.jsx';
 import ParticleEmitter from './ParticleEmitter';
-
-import vertexShader from '@/res/shaders/myVertexShader.glsl';
-import fragmentShader from '@/res/shaders/myFragmentShader.glsl';
-import { Vector2 } from 'three';
-import { useStickyWheel } from '@/hooks/wheel';
-import { AsciiEffect } from 'three/examples/jsm/effects/AsciiEffect';
+import CrazyTopology from './CrazyTopology';
 
 const mapStateToProps = ({ home }: RootState) => ({
     isSplashOpen: home.isSplashOpen,
@@ -29,61 +24,8 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 type ReduxProps = ConnectedProps<typeof connector>;
 type Props = ReduxProps;
 
-const Logo = ({ position = new THREE.Vector3() }) => {
-    const localPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-0.8, 0.0, 0), 0.8), []);
-    const plane2 = useMemo(() => new THREE.Plane(new THREE.Vector3(0.75, 0, 0), 0.4), []);
-    const globalPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0.1), []);
-    const { gl, clock } = useThree();
-    useEffect(() => {
-        gl.localClippingEnabled = true;
-    });
-
-    const knot = useRef<THREE.Mesh>(null!);
-    const knot2 = useRef<THREE.Mesh>(null!);
-    const knot3 = useRef<THREE.Mesh>(null!);
-    var lastTime = clock.getElapsedTime();
-    useFrame(({ clock, mouse }) => {
-        const delta = clock.getElapsedTime() - lastTime;
-        lastTime = clock.getElapsedTime();
-
-        const speed = Math.abs(Math.sin(clock.getElapsedTime() / 10)) * 0.8;
-        knot.current.rotation.z = knot2.current.rotation.z = knot3.current.rotation.z += delta * speed * 2;
-        knot.current.rotation.y = knot2.current.rotation.y = knot3.current.rotation.y += delta * speed * 3.5;
-        knot.current.rotation.x = knot2.current.rotation.x = knot3.current.rotation.x += delta * (1 - speed / 2);
-    });
-
-    return (
-        <group position={position} rotation={[0, Math.PI / 2, 0]}>
-            <mesh ref={knot} castShadow>
-                <torusKnotBufferGeometry attach="geometry" args={[1.5, 0.54, 180, 20, 2, 3]} />
-                <meshToonMaterial
-                    color={0x5ba474}
-                    side={THREE.DoubleSide}
-                    attach="material"
-                    clippingPlanes={[localPlane, plane2]}
-                />
-            </mesh>
-            <mesh ref={knot2} castShadow>
-                <torusKnotBufferGeometry attach="geometry" args={[1.5, 0.52, 180, 20, 2, 3]} />
-                <meshToonMaterial
-                    color={0x30475e}
-                    emissive={new THREE.Color(0x30475e).multiplyScalar(0.3)}
-                    attach="material"
-                    side={THREE.DoubleSide}
-                    clippingPlanes={[globalPlane]}
-                />
-            </mesh>
-            <mesh ref={knot3} castShadow>
-                <torusKnotBufferGeometry attach="geometry" args={[1.5, 0.5, 180, 20, 2, 3]} />
-                <meshToonMaterial color={0xf05454} attach="material" side={THREE.DoubleSide} />
-            </mesh>
-        </group>
-    );
-};
-
 // Custom camera rig
-const Rig = ({ lookAt = new THREE.Vector3() }) => {
-    const wheel = useStickyWheel(0, 2, 1);
+const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
     const { gl } = useThree();
     useEffect(() => {
         gl.setClearColor(0x0e3a9a);
@@ -102,14 +44,33 @@ const Rig = ({ lookAt = new THREE.Vector3() }) => {
     return <></>;
 };
 
+const Brand = ({ target }) => (
+    <div
+        className={cx(
+            'flex h-full justify-center md:justify-start md:ml-12 lg:ml-16 transition-opacity duration-500 opacity-0',
+            {
+                'opacity-100': Math.round(target) === 1,
+            }
+        )}
+    >
+        <div className="block md:mb-32 md:mt-auto mt-2">
+            <h1 className="h-16 text-5xl text-gray-100">
+                <span className="font-extrabold">DANIEL</span>
+                <span className="font-hairline ml-1">WOOD</span>
+            </h1>
+            <h1 className="mx-auto bg-gray-100 text-gray-700 text-center text-lg font-normal">FULL STACK DEVELOPER</h1>
+        </div>
+    </div>
+);
+
 const Splash = ({ closeSplash }: Props) => {
-    const mousePosition = useRef([0, 0]);
+    const wheel = useStickyWheel(0, 2, 1);
 
     return (
         <div className="w-full h-screen absolute bg-blue-600 select-none">
             <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 40 }}>
                 {/* <fog args={['white', 0, 50]} /> */}
-                <Rig />
+                <Rig wheel={wheel} />
                 <ambientLight intensity={0.4} />
                 <directionalLight
                     color="white"
@@ -126,33 +87,19 @@ const Splash = ({ closeSplash }: Props) => {
                 />
                 <pointLight position={[-30, 0, -20]} color="red" intensity={2.5} />
                 <pointLight position={[0, -10, 0]} intensity={1.5} />
-                <Logo />
+                <CrazyTopology />
                 <ParticleEmitter />
                 <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                     <planeBufferGeometry attach="geometry" args={[60, 60]} />
-                    {/* <boxBufferGeometry attach="geometry" args={[20, 20, 20, 10, 10]} /> */}
                     <shadowMaterial attach="material" transparent opacity={0.4} />
-                    {/* <meshStandardMaterial attach="material" color={0xffffff} /> */}
-                    {/* <meshBasicMaterial attach="material" color={0x00ff00} /> */}
                 </mesh>
 
                 <Effects />
                 {/* <OrbitControls /> */}
             </Canvas>
 
-            {/* Brand */}
             <div className="absolute top-0 w-screen h-screen pointer-events-none">
-                <div className="flex h-full justify-center md:justify-start md:ml-12 lg:ml-16">
-                    <div className="block md:mb-32 md:mt-auto mt-2">
-                        <h1 className="h-16 text-5xl text-gray-100">
-                            <span className="font-extrabold">DANIEL</span>
-                            <span className="font-hairline ml-1">WOOD</span>
-                        </h1>
-                        <h1 className="mx-auto bg-gray-100 text-gray-700 text-center text-lg font-normal">
-                            FULL STACK DEVELOPER
-                        </h1>
-                    </div>
-                </div>
+                <Brand target={wheel.target} />
             </div>
 
             {/* Scroll Cue */}
