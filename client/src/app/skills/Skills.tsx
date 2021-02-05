@@ -46,7 +46,7 @@ const SkillCards = ({}) => {
         lastTick.current = now;
 
         const startPos = new THREE.Vector3(-5, 1, -15);
-        const endPos = new THREE.Vector3(stickyWheel.getTarget() * 20, 1, 15);
+        const endPos = new THREE.Vector3(stickyWheel.target * 20, 1, 15);
 
         // camera.position.x += stickyWheel.getNudge();
 

@@ -34,7 +34,7 @@ const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
     const cameraOffset = useMemo(() => new THREE.Euler(-50, 0, 2), []);
     useFrame(({ camera, mouse, clock }) => {
         camera.position.setX(
-            THREE.MathUtils.lerp(camera.position.x, cameraOffset.x + wheel.getTarget() * 60, 0.1) + wheel.getNudge()
+            THREE.MathUtils.lerp(camera.position.x, cameraOffset.x + wheel.target * 60, 0.1) + wheel.getNudge()
         );
         camera.position.setZ(THREE.MathUtils.lerp(camera.position.z, cameraOffset.z + mouse.x * -1.5, 0.05));
         // camera.position.setZ(wheel.getNudge() + THREE.MathUtils.lerp(camera.position.z, wheel.getTarget() * 60, 0.1));
