@@ -6,6 +6,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass';
+import { AsciiEffect } from 'three/examples/jsm/effects/AsciiEffect';
 import '@/sfx/WarpPass';
 
 extend({
@@ -14,6 +15,7 @@ extend({
     FilmPass,
     UnrealBloomPass,
     AfterimagePass,
+    AsciiEffect,
 });
 
 const Effects = ({}) => {
@@ -22,8 +24,6 @@ const Effects = ({}) => {
     const aspect = useMemo(() => new THREE.Vector2(512, 512), []);
     useEffect(() => {
         composer.current.setSize(size.width, size.height);
-        // console.log(warpPassOld);
-        // console.log(warpPass);
     }, [size]);
     useFrame(() => composer.current.render(), 1);
     return (
@@ -32,10 +32,10 @@ const Effects = ({}) => {
             {/* <unrealBloomPass attachArray="passes" /> */}
             {/* <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} /> */}
             {/* <warpPass attachArray="passes" factor={5.0} frequency={3} /> */}
-            <warpPass attachArray="passes" factor={2.5} frequency={4} />
-            {/* <afterimagePass attachArray="passes" damp={-1000000.8} /> */}
-            <unrealBloomPass attachArray="passes" args={[aspect, 0.3, 0.4, 0.1]} />
-            <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} />
+            <warpPass attachArray="passes" factor={4} frequency={3} />
+            <unrealBloomPass attachArray="passes" args={[aspect, 0.5, 5.9, 0.65]} />
+            {/* <afterimagePass attachArray="passes" damp={0.000001} /> */}
+            <filmPass attachArray="passes" args={[0.2, 0.1, 512, false]} />
         </effectComposer>
     );
 };
