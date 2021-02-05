@@ -27,7 +27,7 @@ class Particle {
         private radius: number,
         private lifeTime: number,
         private startTime: number,
-        private isAlive: boolean
+        private isAlive: boolean = true
     ) {
         this.origin = position.clone();
     }
@@ -64,8 +64,8 @@ const ParticleEmitter = ({
     spread = 2,
     minRadius = 0.01,
     maxRadius = 0.03,
-    minLifeTime = 0.9,
-    maxLifeTime = 3.8,
+    minLifeTime = 0.1,
+    maxLifeTime = 0.7,
 }) => {
     const instanceRef = useRef<THREE.InstancedMesh>(null!);
     const tempObject = useMemo(() => new THREE.Object3D(), []);
@@ -113,14 +113,12 @@ const ParticleEmitter = ({
     return (
         <instancedMesh ref={instanceRef} args={[null!, null!, count]} castShadow receiveShadow>
             <circleBufferGeometry attach="geometry" args={[1, 3]} />
-            <meshStandardMaterial
+            <meshBasicMaterial
                 transparent={true}
                 opacity={1}
                 side={THREE.DoubleSide}
                 attach="material"
                 color={0xffffff}
-                emissive={new THREE.Color(0xffaaaa)}
-                emissiveIntensity={2.5}
             />
         </instancedMesh>
     );

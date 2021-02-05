@@ -89,12 +89,14 @@ const Rig = ({ lookAt = new THREE.Vector3() }) => {
         gl.setClearColor(0x0e3a9a);
     });
 
+    const cameraOffset = useMemo(() => new THREE.Euler(-50, 0, 2), []);
     useFrame(({ camera, mouse, clock }) => {
         camera.position.setX(
-            THREE.MathUtils.lerp(camera.position.x, -50 + wheel.getTarget() * 60, 0.1) + wheel.getNudge()
+            THREE.MathUtils.lerp(camera.position.x, cameraOffset.x + wheel.getTarget() * 60, 0.1) + wheel.getNudge()
         );
+        camera.position.setZ(THREE.MathUtils.lerp(camera.position.z, cameraOffset.z + mouse.x * -1.5, 0.05));
         // camera.position.setZ(wheel.getNudge() + THREE.MathUtils.lerp(camera.position.z, wheel.getTarget() * 60, 0.1));
-        camera.lookAt(new THREE.Vector3(camera.position.x - 10, 0, 0));
+        camera.lookAt(new THREE.Vector3(camera.position.x - 10, 0, camera.position.z));
     });
 
     return <></>;
