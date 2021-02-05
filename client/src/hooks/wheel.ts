@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import useEvent from '@react-hook/event';
 import { useDebounce } from '@react-hook/debounce';
 import Utils from '@/utils';
+import { useThrottle } from '@react-hook/throttle';
 
 // Special thanks to Joel Teply for this idea
 // https://stackoverflow.com/a/57781079/14496758
@@ -55,31 +56,27 @@ export const useStickyWheel = (
 ): StickyWheelContext => {
     const nudge = useRef(0);
     const scroll = useRef(0);
-    const target = useRef(0);
-    const [targetState, setTargetState] = useState(0);
     const maxDistY = useRef(0);
     const lastDeltaY = useRef(0);
     const dys = useRef<number[]>([]);
 
-    const isTouchpad = useIsTouchpad();
+    // Throttling @ 10fps to update state tree with decent performance
+    const [target, setTarget] = useThrottle(0, 10);
 
-    useEffect(() => {
-        // Round target to nearest integer
-        const newTarget = Utils.clamp(Math.round(scroll.current), min, max);
-        setTargetState(newTarget);
-    }, [target.current]);
+    const isTouchpad = useIsTouchpad();
 
     const lastTick = useRef<number>(null!);
     const tick = (t) => {
         const deltaSec = (t - lastTick.current || 0) / 1000;
         lastTick.current = t;
 
-        target.current = Utils.clamp(Math.round(scroll.current), min, max);
+        const nextTarget = Utils.clamp(Math.round(scroll.current), min, max);
+        setTarget(nextTarget);
 
         // Lerp scroll value to target
         scroll.current = Utils.lerp(
             scroll.current,
-            target.current + nudge.current,
+            nextTarget + nudge.current,
             speed * deltaSec
         );
 
@@ -125,8 +122,8 @@ export const useStickyWheel = (
 
     return {
         getScroll: () => min + scroll.current * step,
-        getTarget: () => target.current,
-        target: targetState,
+        getTarget: () => target,
+        target,
         getNudge: () => nudge.current,
         isTouchpad,
     };
