@@ -2,15 +2,6 @@ import React, { useMemo, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from 'react-three-fiber';
 
-// interface Particle {
-//     position: THREE.Vector3;
-//     velocity: THREE.Vector3;
-//     radius: number;
-//     lifeTime: number;
-//     elapsedTime: number;
-//     isAlive: boolean;
-// }
-
 class Particle {
     private position: THREE.Vector3;
 

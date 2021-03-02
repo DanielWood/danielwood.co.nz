@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree } from 'react-three-fiber';
+import Typist from 'react-typist';
 import { useStickyWheel } from '@/hooks/wheel';
 import cx from 'classnames';
 import actions from './redux/actions';
@@ -10,6 +11,10 @@ import ScrollCue from '@/app/common/ScrollCue';
 import Effects from '@/app/common/Effects.jsx';
 import ParticleEmitter from './ParticleEmitter';
 import CrazyTopology from './CrazyTopology';
+import Navbar from '@/app/common/Navbar';
+import computerModel from '@/res/models/computer.gltf';
+import { Link } from 'react-router-dom';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const mapStateToProps = ({ home }: RootState) => ({
     isSplashOpen: home.isSplashOpen,
@@ -50,44 +55,81 @@ const ScrollInWrapper = ({ scrollValue, targetValue, className, activeClasses, c
     </div>
 );
 
-const Intro = ({ target }) => (
-    <ScrollInWrapper
-        scrollValue={target}
-        targetValue={0}
-        className="flex flex-col justify-around h-full transition-all duration-500 opacity-0"
-        activeClasses="opacity-100"
-    >
-        {/* Brand */}
-        <div className="block mt-4 mb-16 mx-auto">
-            <h1 className="h-16 text-5xl text-gray-100">
-                <span className="font-extrabold">DANIEL</span>
-                <span className="font-hairline ml-1">WOOD</span>
-            </h1>
-            <h1 className="mx-auto bg-gray-100 text-gray-700 text-center text-lg font-normal">FULL STACK DEVELOPER</h1>
-        </div>
-        <div className="block mx-auto mb-auto mt-0 w-4/5 md:w-1/3">
-            <p className="text-lg text-gray-100 font-normal tracking-tight">
-                Hey!
-                <br />
-                Welcome to my website.
-                <br />
-                I'm still working on it.
-                <br />
-                <br />
-                Feel free to <span className="font-semibold text-red-500 underline">scroll down</span> for an
-                interactive 3D experience.
-                <br />
-                <br />
-            </p>
-        </div>
-    </ScrollInWrapper>
-);
+var textCanvas = null;
+
+const Intro = ({ target }) => {
+    const divRef = useRef<HTMLDivElement>(null!);
+
+    return (
+        <>
+            <Navbar locationPercent={target == 1 ? 12 : 50} />
+            {/* TODO: Render text to canvas and use as texture for screen... */}
+            {/* https://stackoverflow.com/questions/15502827/html5-canvas-typewriter-effect-with-word-wrapping */}
+            <ScrollInWrapper
+                scrollValue={target}
+                targetValue={0}
+                className="transition-all duration-500 opacity-0"
+                activeClasses="opacity-100"
+            >
+                <div ref={divRef} className="block mt-48 mx-auto h-auto w-3/5 md:w-2/5">
+                    <p className="text-lg text-gray-100 font-normal tracking-tight font-mono">
+                        <Typist
+                            startDelay={1000}
+                            avgTypingDelay={35}
+                            stdTypingDelay={30}
+                            cursor={{ blink: true, hideWhenDone: true }}
+                        >
+                            Hi there. <Typist.Delay ms={500} />
+                            <br />
+                            <br />
+                            I'm DAnielk
+                            <Typist.Backspace count={7} delay={100} />
+                            Daniel.
+                            <Typist.Delay ms={500} />
+                            <br />
+                            <br />
+                            It looks like you've found my website.
+                            <Typist.Delay ms={600} />
+                            <span className="italic ml-3">(still working on it)</span>
+                            <Typist.Delay ms={500} />
+                            <br />
+                            <br />
+                            You can use the navbar below my name to find stuff.
+                            <Typist.Delay ms={300} />
+                            <br />
+                            <br />
+                            OR: You can scroll down (with force) to see more about me.
+                            <Typist.Delay ms={150} />
+                            <br />
+                            <span className="text-red-400 italic font-normal">*it has 3d effects*</span>
+                        </Typist>
+                    </p>
+                </div>
+            </ScrollInWrapper>
+        </>
+    );
+};
+
+const Computer = () => {
+    const { scene } = useThree();
+    const groupRef = useRef<THREE.Group>(null!);
+
+    useEffect(() => {
+        const loader = new GLTFLoader();
+
+        loader.load(computerModel, (obj) => {
+            groupRef.current.add(obj.scene.children[0]);
+        });
+    });
+
+    return <group ref={groupRef} position={[-70, -2, 2]} scale={[10, 10, 10]} rotation={[0, Math.PI / 2, 0]}></group>;
+};
 
 const Splash = ({ closeSplash }: Props) => {
     const wheel = useStickyWheel(0, 2, 1);
 
     return (
-        <div className="w-full h-screen absolute bg-blue-600 select-none">
+        <div className="w-full h-screen absolute bg-blue-600">
             <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 40 }}>
                 <fog args={['white', 0, 1000]} />
                 <Rig wheel={wheel} />
@@ -107,6 +149,7 @@ const Splash = ({ closeSplash }: Props) => {
                 />
                 <pointLight position={[-30, 0, -20]} color="red" intensity={2.5} />
                 <pointLight position={[0, -10, 0]} intensity={1.5} />
+                <Computer />
                 <CrazyTopology />
                 <ParticleEmitter />
                 <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -118,7 +161,7 @@ const Splash = ({ closeSplash }: Props) => {
                 {/* <OrbitControls /> */}
             </Canvas>
 
-            <div className="absolute top-0 w-screen h-screen pointer-events-none">
+            <div className="absolute top-0 w-screen h-screen">
                 <Intro target={wheel.target} />
             </div>
 
