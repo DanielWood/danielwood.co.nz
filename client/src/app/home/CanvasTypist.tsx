@@ -90,7 +90,7 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                         x = 4;
                         y += fontSize;
                     }
-                    // Request next frame
+                    // TODO: Use requestAnimationFrame instead of setTimeout
                     if (ptr.length > 0) {
                         const range = Math.random() * 2 - 1;
                         const delay = avgTypingDelay + range * stdTypingDelay;

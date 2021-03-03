@@ -115,7 +115,7 @@ const Splash = ({ closeSplash }: Props) => {
 
     return (
         <div className="w-full h-screen absolute bg-blue-600">
-            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 40 }}>
+            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 50 }}>
                 <fog args={['white', 0, 1000]} />
                 <Rig wheel={wheel} />
                 <ambientLight intensity={0.4} />
@@ -152,6 +152,9 @@ const Splash = ({ closeSplash }: Props) => {
                 <Navbar locationPercent={wheel.target == 1 ? 12 : 50} />
                 <CanvasTypist
                     ref={canvasRef}
+                    startDelay={2000}
+                    avgTypingDelay={1}
+                    stdTypingDelay={0}
                     text={
                         'Hi there.\n\n' +
                         "I'm Daniel.\n\n" +

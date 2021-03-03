@@ -15,7 +15,7 @@ const Navbar = ({ locationPercent = 50 }) => {
     }, [locationPercent, window.outerWidth]);
 
     return (
-        <div ref={divRef} className="absolute block mt-4 mb-16 transition-all duration-500">
+        <div ref={divRef} className="absolute block transition-all duration-500">
             <h1 className="h-16 text-5xl text-gray-100 select-none text-center">
                 {/* <Typist cursor={{ hideWhenDone: true, hideWhenDoneDelay: 0 }}> */}
                 <span className="font-extrabold">DANIEL</span>
