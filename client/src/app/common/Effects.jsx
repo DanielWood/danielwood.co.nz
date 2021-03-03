@@ -18,7 +18,7 @@ extend({
     AsciiEffect,
 });
 
-const Effects = ({}) => {
+const Effects = ({ isComputer = true }) => {
     const composer = useRef(null);
     const { gl, scene, camera, size } = useThree();
     const aspect = useMemo(() => new THREE.Vector2(512, 512), []);
@@ -32,8 +32,12 @@ const Effects = ({}) => {
             {/* <unrealBloomPass attachArray="passes" /> */}
             {/* <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} /> */}
             {/* <warpPass attachArray="passes" factor={5.0} frequency={3} /> */}
-            <warpPass attachArray="passes" factor={4} frequency={3} />
-            <unrealBloomPass attachArray="passes" args={[aspect, 0.5, 5.9, 0.65]} />
+            <warpPass attachArray="passes" factor={3} frequency={3} />
+            <unrealBloomPass
+                attachArray="passes"
+                args={[aspect, 2.95, 0.9, 0.35]}
+                hidden={!isComputer}
+            />
             {/* <afterimagePass attachArray="passes" damp={0.000001} /> */}
             <filmPass attachArray="passes" args={[0.2, 0.1, 512, false]} />
         </effectComposer>

@@ -7,14 +7,13 @@ import { useStickyWheel } from '@/hooks/wheel';
 import cx from 'classnames';
 import actions from './redux/actions';
 import { RootState } from 'typesafe-actions';
+import Navbar from '@/app/common/Navbar';
 import ScrollCue from '@/app/common/ScrollCue';
-import Effects from '@/app/common/Effects.jsx';
+import CanvasTypist from './CanvasTypist';
+import Computer from './Computer';
 import ParticleEmitter from './ParticleEmitter';
 import CrazyTopology from './CrazyTopology';
-import Navbar from '@/app/common/Navbar';
-import computerModel from '@/res/models/computer.gltf';
-import { Link } from 'react-router-dom';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import Effects from '@/app/common/Effects.jsx';
 
 const mapStateToProps = ({ home }: RootState) => ({
     isSplashOpen: home.isSplashOpen,
@@ -110,23 +109,9 @@ const Intro = ({ target }) => {
     );
 };
 
-const Computer = () => {
-    const { scene } = useThree();
-    const groupRef = useRef<THREE.Group>(null!);
-
-    useEffect(() => {
-        const loader = new GLTFLoader();
-
-        loader.load(computerModel, (obj) => {
-            groupRef.current.add(obj.scene.children[0]);
-        });
-    });
-
-    return <group ref={groupRef} position={[-70, -2, 2]} scale={[10, 10, 10]} rotation={[0, Math.PI / 2, 0]}></group>;
-};
-
 const Splash = ({ closeSplash }: Props) => {
     const wheel = useStickyWheel(0, 2, 1);
+    const canvasRef = useRef<HTMLCanvasElement>(null!);
 
     return (
         <div className="w-full h-screen absolute bg-blue-600">
@@ -147,9 +132,9 @@ const Splash = ({ closeSplash }: Props) => {
                     shadow-camera-top={20}
                     shadow-camera-bottom={-20}
                 />
-                <pointLight position={[-30, 0, -20]} color="red" intensity={2.5} />
+                <pointLight position={[-30, 0, -20]} color={wheel.target == 0 ? 'gray' : 'red'} intensity={2.5} />
                 <pointLight position={[0, -10, 0]} intensity={1.5} />
-                <Computer />
+                <Computer ref={canvasRef} />
                 <CrazyTopology />
                 <ParticleEmitter />
                 <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -157,12 +142,26 @@ const Splash = ({ closeSplash }: Props) => {
                     <shadowMaterial attach="material" transparent opacity={0.4} />
                 </mesh>
 
-                <Effects />
+                <Effects isComputer={wheel.target == 0} />
                 {/* <OrbitControls /> */}
             </Canvas>
 
             <div className="absolute top-0 w-screen h-screen">
-                <Intro target={wheel.target} />
+                {/* <Intro target={wheel.target} /> */}
+                {/* <Typing ref={canvasRef} /> */}
+                <Navbar locationPercent={wheel.target == 1 ? 12 : 50} />
+                <CanvasTypist
+                    ref={canvasRef}
+                    text={
+                        'Hi there.\n\n' +
+                        "I'm Daniel.\n\n" +
+                        "It Looks like you've found my website.\n" +
+                        "(I'm still working on it)\n\n" +
+                        'You can use the navbar below my name to find stuff.\n\n' +
+                        'Otherwise you can scroll down (with force) to see more about me.\n' +
+                        '*it has 3d effects*'
+                    }
+                />
             </div>
 
             {/* Scroll Cue */}
