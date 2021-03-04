@@ -115,7 +115,7 @@ const Splash = ({ closeSplash }: Props) => {
 
     return (
         <div className="w-full h-screen absolute bg-blue-600">
-            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 50 }}>
+            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 40 }}>
                 <fog args={['white', 0, 1000]} />
                 <Rig wheel={wheel} />
                 <ambientLight intensity={0.4} />
@@ -153,8 +153,9 @@ const Splash = ({ closeSplash }: Props) => {
                 <CanvasTypist
                     ref={canvasRef}
                     startDelay={2000}
-                    avgTypingDelay={1}
-                    stdTypingDelay={0}
+                    avgTypingDelay={70}
+                    stdTypingDelay={24}
+                    fontSize={16}
                     text={
                         'Hi there.\n\n' +
                         "I'm Daniel.\n\n" +

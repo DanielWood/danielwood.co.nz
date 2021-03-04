@@ -14,24 +14,6 @@ const lines = [
     '*it has 3d effects',
 ];
 
-const writeText = (canvas: HTMLCanvasElement) => {
-    const fontPx = 22;
-    const ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#059D82';
-    ctx.font = `${fontPx}px Courier New`;
-
-    for (let i = 0; i < lines.length; i++) {
-        let x = 4;
-        let y = i * fontPx + fontPx;
-        for (const char of lines[i]) {
-            ctx.fillText(char, x, y);
-            x += fontPx * 0.55;
-        }
-        // ctx.fillText(lines[i], x, y);
-    }
-};
-
 interface CanvasTypistProps {
     width?: number;
     height?: number;
@@ -49,14 +31,14 @@ var hasStarted = false;
 const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
     (
         {
-            width = 1024,
-            height = 1024,
+            width = 256,
+            height = 256,
             fontSize = 32,
             fontFamily = 'Courier New',
             fontStyle = '#059D82',
             startDelay = 0,
-            avgTypingDelay = 35,
-            stdTypingDelay = 30,
+            avgTypingDelay = 150,
+            stdTypingDelay = 45,
             hidden = true,
             text,
         },
@@ -71,8 +53,8 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                 const canvas = (ref as React.MutableRefObject<HTMLCanvasElement>).current;
                 const ctx = canvas.getContext('2d');
 
-                ctx.fillStyle = '#01100C';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // ctx.fillStyle = '#01100C';
+                // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 const typeNextCharacter = function () {
                     const char = ptr[0];
