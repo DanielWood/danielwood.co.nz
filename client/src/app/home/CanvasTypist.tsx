@@ -1,19 +1,5 @@
 import React, { useEffect, useRef, useState, forwardRef } from 'react';
 
-const lines = [
-    'Hi there.',
-    '',
-    "I'm Daniel.",
-    '',
-    "It looks like you've found my website.",
-    "(I'm still working on it)",
-    '',
-    'You can use the navbar below my name to find stuff.',
-    '',
-    'Otherwise you can scroll down (with force) to see more about me.',
-    '*it has 3d effects',
-];
-
 interface CanvasTypistProps {
     width?: number;
     height?: number;
@@ -27,12 +13,11 @@ interface CanvasTypistProps {
     text: string;
 }
 
-var hasStarted = false;
 const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
     (
         {
-            width = 256,
-            height = 256,
+            width = 512,
+            height = 512,
             fontSize = 32,
             fontFamily = 'Courier New',
             fontStyle = '#059D82',
@@ -44,43 +29,56 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
         },
         ref
     ) => {
-        var [{ x, y, ptr }, setState] = useState({ x: 4, y: fontSize, ptr: text });
-        var isStarted = useRef<boolean>(false);
+        ref = ref || useRef<HTMLCanvasElement>(null!);
+        var [ptr] = useState(String(text));
+        var [[x, y]] = useState([4, fontSize]);
+        var [[lastTick, delay]] = useState([0, startDelay]);
 
+        var isStarted = useRef<boolean>(false);
         useEffect(() => {
             if (!isStarted.current) {
                 isStarted.current = true;
                 const canvas = (ref as React.MutableRefObject<HTMLCanvasElement>).current;
                 const ctx = canvas.getContext('2d');
 
-                // ctx.fillStyle = '#01100C';
-                // ctx.fillRect(0, 0, canvas.width, canvas.height);
+                lastTick = performance.now();
+                const typeNextCharacter = (t: DOMHighResTimeStamp) => {
+                    const dt = t - lastTick;
+                    lastTick = t;
 
-                const typeNextCharacter = function () {
-                    const char = ptr[0];
-                    ptr = ptr.substr(1);
+                    // Subtract the delta from the delay
+                    delay -= dt;
 
-                    ctx.font = `${fontSize}px ${fontFamily}`;
-                    ctx.fillStyle = fontStyle;
-                    ctx.shadowBlur = fontSize / 2;
-                    ctx.shadowColor = fontStyle;
-                    ctx.fillText(char, x, y);
+                    var remaining = dt;
+                    while (remaining - delay > 0 && ptr.length > 0) {
+                        remaining -= delay;
 
-                    const incrX = ctx.measureText(char).width;
-                    x += incrX;
-                    if (x + incrX >= width || char == '\n') {
-                        x = 4;
-                        y += fontSize;
-                    }
-                    // TODO: Use requestAnimationFrame instead of setTimeout
-                    if (ptr.length > 0) {
+                        const char = ptr[0];
+                        ptr = ptr.substr(1);
+
+                        ctx.font = `${fontSize}px ${fontFamily}`;
+                        ctx.fillStyle = fontStyle;
+                        ctx.shadowBlur = fontSize / 2;
+                        ctx.shadowColor = fontStyle;
+                        ctx.fillText(char, x, y);
+
+                        const incrX = ctx.measureText(char).width;
+                        x += incrX;
+                        if (x + incrX >= width || char == '\n') {
+                            x = 4;
+                            y += fontSize;
+                        }
+
                         const range = Math.random() * 2 - 1;
-                        const delay = avgTypingDelay + range * stdTypingDelay;
-                        setTimeout(typeNextCharacter, delay);
+                        delay = avgTypingDelay + range * stdTypingDelay;
+                    }
+
+                    if (ptr.length > 0) {
+                        requestAnimationFrame(typeNextCharacter);
                     }
                 };
 
-                setTimeout(typeNextCharacter, startDelay);
+                requestAnimationFrame(typeNextCharacter);
             }
         });
 

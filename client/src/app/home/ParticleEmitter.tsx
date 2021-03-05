@@ -42,6 +42,7 @@ const ParticleEmitter = ({
     maxRadius = 0.03,
     minLifeTime = 0.1,
     maxLifeTime = 0.7,
+    visible = true,
 }) => {
     const instanceRef = useRef<THREE.InstancedMesh>(null!);
     const tempObject = useMemo(() => new THREE.Object3D(), []);
@@ -52,6 +53,9 @@ const ParticleEmitter = ({
     const randomBipolar = () => Math.random() * 2 - 1;
 
     useFrame(({ clock }) => {
+        if (!visible) {
+            return;
+        }
         const time = clock.getElapsedTime();
 
         // Update particles

@@ -116,3 +116,7 @@ body,
 .ml-1\/5-44 {
     margin-left: Calc(20% - 11rem);
 }
+
+.cursor-none {
+    cursor: none;
+}

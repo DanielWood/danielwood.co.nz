@@ -28,7 +28,7 @@ const CrazyTopology = ({ position = new THREE.Vector3(), visible = true }) => {
     });
 
     return (
-        <group position={position} rotation={[0, Math.PI / 2, 0]} visible={visible}>
+        <group position={position} rotation={[0, Math.PI / 2, 0]}>
             <mesh ref={knot} castShadow>
                 <torusKnotBufferGeometry attach="geometry" args={[1.5, 0.54, 180, 20, 2, 3]} />
                 <meshToonMaterial

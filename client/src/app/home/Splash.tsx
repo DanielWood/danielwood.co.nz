@@ -32,7 +32,8 @@ type Props = ReduxProps;
 const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
     const { gl } = useThree();
     useEffect(() => {
-        gl.setClearColor(0x0e3a9a);
+        // gl.setClearColor(0x0e3a9a);
+        gl.setClearColor(0x00000f);
     });
 
     const cameraOffset = useMemo(() => new THREE.Euler(-50, 0, 2), []);
@@ -54,14 +55,12 @@ const ScrollInWrapper = ({ scrollValue, targetValue, className, activeClasses, c
     </div>
 );
 
-var textCanvas = null;
-
 const Intro = ({ target }) => {
     const divRef = useRef<HTMLDivElement>(null!);
 
     return (
         <>
-            <Navbar locationPercent={target == 1 ? 12 : 50} />
+            <Navbar locationPercent={target === 1 ? 12 : 50} />
             {/* TODO: Render text to canvas and use as texture for screen... */}
             {/* https://stackoverflow.com/questions/15502827/html5-canvas-typewriter-effect-with-word-wrapping */}
             <ScrollInWrapper
@@ -132,29 +131,31 @@ const Splash = ({ closeSplash }: Props) => {
                     shadow-camera-top={20}
                     shadow-camera-bottom={-20}
                 />
-                <pointLight position={[-30, 0, -20]} color={wheel.target == 0 ? 'gray' : 'red'} intensity={2.5} />
+                <pointLight position={[-30, 0, -20]} color={wheel.target === 0 ? 'gray' : 'red'} intensity={2.5} />
                 <pointLight position={[0, -10, 0]} intensity={1.5} />
                 <Computer ref={canvasRef} />
-                <CrazyTopology />
-                <ParticleEmitter />
+                <CrazyTopology visible={wheel.target === 1} />
+                <ParticleEmitter visible={wheel.target === 1} />
                 <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                     <planeBufferGeometry attach="geometry" args={[60, 60]} />
                     <shadowMaterial attach="material" transparent opacity={0.4} />
                 </mesh>
 
-                <Effects isComputer={wheel.target == 0} />
+                <Effects isComputer={wheel.target === 0} />
                 {/* <OrbitControls /> */}
             </Canvas>
 
             <div className="absolute top-0 w-screen h-screen">
                 {/* <Intro target={wheel.target} /> */}
                 {/* <Typing ref={canvasRef} /> */}
-                <Navbar locationPercent={wheel.target == 1 ? 12 : 50} />
+                <Navbar locationPercent={wheel.target === 1 ? 12 : 50} />
                 <CanvasTypist
                     ref={canvasRef}
                     startDelay={2000}
-                    avgTypingDelay={70}
-                    stdTypingDelay={24}
+                    avgTypingDelay={80}
+                    stdTypingDelay={30}
+                    width={256}
+                    height={256}
                     fontSize={16}
                     text={
                         'Hi there.\n\n' +
