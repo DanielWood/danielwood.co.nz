@@ -9,7 +9,7 @@
     "scripts": {
         "start": "node index.js",
         "start-dev": "cd client; yarn start",
-        "build": "cd client; yarn run build:css; yarn run build"
+        "build": "cd client; yarn run build-all"
     },
     "dependencies": {
         "@types/compression": "^1.7.0",
