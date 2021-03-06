@@ -57,14 +57,13 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                         const char = ptr[0];
                         ptr = ptr.substr(1);
 
-                        // Look ahead for words
                         const whitespace = /\s|\n/;
                         if (char.match(whitespace)) {
-                            const word = ptr.split(whitespace, 1)[0];
-                            if (x + ctx.measureText(word).width >= width || char === '\n') {
+                            const nextWord = ptr.split(whitespace, 1)[0];
+                            if (x + ctx.measureText(nextWord).width >= width || char === '\n') {
                                 x = 4;
                                 y += fontSize;
-                                continue;
+                                continue; // Skip leading whitespace on new line
                             }
                         }
 
@@ -74,8 +73,7 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                         ctx.shadowColor = fontStyle;
                         ctx.fillText(char, x, y);
 
-                        const incrX = ctx.measureText(char).width;
-                        x += incrX;
+                        x += ctx.measureText(char).width;
 
                         const range = Math.random() * 2 - 1;
                         delay = avgTypingDelay + range * stdTypingDelay;
