@@ -41,6 +41,7 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                 const canvas = (ref as React.MutableRefObject<HTMLCanvasElement>).current;
                 const ctx = canvas.getContext('2d');
 
+                // Animation callback
                 lastTick = performance.now();
                 const typeNextCharacter = (t: DOMHighResTimeStamp) => {
                     const dt = t - lastTick;
@@ -56,6 +57,17 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                         const char = ptr[0];
                         ptr = ptr.substr(1);
 
+                        // Look ahead for words
+                        const whitespace = /\s|\n/;
+                        if (char.match(whitespace)) {
+                            const word = ptr.split(whitespace, 1)[0];
+                            if (x + ctx.measureText(word).width >= width || char === '\n') {
+                                x = 4;
+                                y += fontSize;
+                                continue;
+                            }
+                        }
+
                         ctx.font = `${fontSize}px ${fontFamily}`;
                         ctx.fillStyle = fontStyle;
                         ctx.shadowBlur = fontSize / 2;
@@ -64,10 +76,6 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
 
                         const incrX = ctx.measureText(char).width;
                         x += incrX;
-                        if (x + incrX >= width || char == '\n') {
-                            x = 4;
-                            y += fontSize;
-                        }
 
                         const range = Math.random() * 2 - 1;
                         delay = avgTypingDelay + range * stdTypingDelay;
