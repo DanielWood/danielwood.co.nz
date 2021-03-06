@@ -51,7 +51,7 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
                     delay -= dt;
 
                     var remaining = dt;
-                    while (remaining - delay > 0 && ptr.length > 0) {
+                    while (remaining > delay && ptr.length > 0) {
                         remaining -= delay;
 
                         const char = ptr[0];
