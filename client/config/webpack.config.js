@@ -367,6 +367,7 @@ module.exports = function (webpackEnv) {
                                 /\.png$/,
                                 /\.ttf$/,
                                 /\.obj$/,
+                                /\.mtl$/,
                             ],
                             loader: require.resolve('url-loader'),
                             options: {

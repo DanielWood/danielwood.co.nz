@@ -27,16 +27,16 @@ const Navbar = ({ locationPercent = 50 }) => {
                     to="#"
                     className="w-1/3 mx-1 bg-gray-100 text-gray-700 text-center text-lg font-light tracking-tight"
                 >
-                    INTRO
+                    HOME
                 </Link>
                 <Link
                     to="#"
                     className="w-1/3 mx-1 bg-gray-100 text-gray-700 text-center text-lg font-light tracking-tight"
                 >
-                    LINKS
+                    INFO
                 </Link>
                 <Link
-                    to="#"
+                    to="/blog"
                     className="w-1/3 mx-1 bg-gray-100 text-gray-700 text-center text-lg font-light tracking-tight"
                 >
                     BLOG

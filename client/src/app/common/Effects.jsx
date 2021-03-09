@@ -32,10 +32,10 @@ const Effects = ({ isComputer = true }) => {
             {/* <unrealBloomPass attachArray="passes" /> */}
             {/* <filmPass attachArray="passes" args={[0.1, 0.1, 512, false]} /> */}
             {/* <warpPass attachArray="passes" factor={5.0} frequency={3} /> */}
-            <warpPass attachArray="passes" factor={3} frequency={3} />
+            <warpPass attachArray="passes" factor={4} frequency={3} />
             <unrealBloomPass
                 attachArray="passes"
-                args={[aspect, 0.5, 6.9, 0.65]}
+                args={[aspect, 2.0, 0.9, 0.07]}
                 hidden={!isComputer}
             />
             {/* <afterimagePass attachArray="passes" damp={0.000001} /> */}

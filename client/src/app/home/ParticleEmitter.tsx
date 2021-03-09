@@ -43,6 +43,7 @@ const ParticleEmitter = ({
     minLifeTime = 0.1,
     maxLifeTime = 0.7,
     visible = true,
+    ...props
 }) => {
     const instanceRef = useRef<THREE.InstancedMesh>(null!);
     const tempObject = useMemo(() => new THREE.Object3D(), []);
@@ -91,14 +92,15 @@ const ParticleEmitter = ({
     });
 
     return (
-        <instancedMesh ref={instanceRef} args={[null!, null!, count]} castShadow receiveShadow>
+        <instancedMesh ref={instanceRef} args={[null!, null!, count]} {...props}>
             <circleBufferGeometry attach="geometry" args={[1, 3]} />
-            <meshBasicMaterial
+            <meshToonMaterial
                 transparent={true}
                 opacity={1}
                 side={THREE.DoubleSide}
                 attach="material"
                 color={0xffffff}
+                emissiveIntensity={10}
             />
         </instancedMesh>
     );

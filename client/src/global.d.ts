@@ -3,3 +3,4 @@
 declare module '*.glsl';
 declare module '*.gltf';
 declare module '*.obj';
+declare module '*.mtl';

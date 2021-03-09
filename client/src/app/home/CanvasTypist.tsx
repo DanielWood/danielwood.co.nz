@@ -69,8 +69,8 @@ const CanvasTypist = forwardRef<HTMLCanvasElement, CanvasTypistProps>(
 
                         ctx.font = `${fontSize}px ${fontFamily}`;
                         ctx.fillStyle = fontStyle;
-                        ctx.shadowBlur = fontSize / 2;
-                        ctx.shadowColor = fontStyle;
+                        // ctx.shadowBlur = fontSize / 2;
+                        // ctx.shadowColor = fontStyle;
                         ctx.fillText(char, x, y);
 
                         x += ctx.measureText(char).width;

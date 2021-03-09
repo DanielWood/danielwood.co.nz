@@ -114,15 +114,15 @@ const Splash = ({ closeSplash }: Props) => {
 
     return (
         <div className="w-full h-screen absolute bg-blue-600">
-            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [-30, 0, 0], fov: 40 }}>
+            <Canvas className="absolute" colorManagement shadowMap camera={{ position: [0, 0, 0], fov: 40 }}>
                 <fog args={['white', 0, 1000]} />
                 <Rig wheel={wheel} />
-                <ambientLight intensity={0.4} />
+                <ambientLight intensity={0.1} />
                 <directionalLight
                     color="white"
                     castShadow
                     position={[0, 6, 0]}
-                    intensity={1.5}
+                    intensity={wheel.target === 0 ? 0.4 : 1.0}
                     shadow-mapSize-width={1024}
                     shadow-mapSize-height={1024}
                     shadow-camera-far={200}
@@ -131,23 +131,18 @@ const Splash = ({ closeSplash }: Props) => {
                     shadow-camera-top={20}
                     shadow-camera-bottom={-20}
                 />
-                <pointLight position={[-30, 0, -20]} color={wheel.target === 0 ? 'gray' : 'red'} intensity={2.5} />
-                <pointLight position={[0, -10, 0]} intensity={1.5} />
                 <Computer ref={canvasRef} />
                 <CrazyTopology visible={wheel.target === 1} />
-                <ParticleEmitter visible={wheel.target === 1} />
+                <ParticleEmitter visible={wheel.target === 1} spread={1.5} count={2000} position={[0, 1.5, 0]} />
                 <mesh receiveShadow position={[0, -3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                     <planeBufferGeometry attach="geometry" args={[60, 60]} />
                     <shadowMaterial attach="material" transparent opacity={0.4} />
                 </mesh>
 
                 <Effects isComputer={wheel.target === 0} />
-                {/* <OrbitControls /> */}
             </Canvas>
 
             <div className="absolute top-0 w-screen h-screen">
-                {/* <Intro target={wheel.target} /> */}
-                {/* <Typing ref={canvasRef} /> */}
                 <Navbar locationPercent={wheel.target === 1 ? 12 : 50} />
                 <CanvasTypist
                     ref={canvasRef}
@@ -163,8 +158,7 @@ const Splash = ({ closeSplash }: Props) => {
                         "It Looks like you've found my website.\n" +
                         "(I'm still working on it)\n\n" +
                         'You can use the navbar below my name to find stuff.\n\n' +
-                        'Otherwise you can scroll down (with force) to see more about me.\n' +
-                        '*it has 3d effects*'
+                        'Otherwise you can scroll down (with force) to see more about me.\n'
                     }
                 />
             </div>
