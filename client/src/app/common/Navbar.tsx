@@ -17,10 +17,8 @@ const Navbar = ({ locationPercent = 50 }) => {
     return (
         <div ref={divRef} className="absolute block transition-all duration-500">
             <h1 className="h-16 text-5xl text-gray-100 select-none text-center">
-                {/* <Typist cursor={{ hideWhenDone: true, hideWhenDoneDelay: 0 }}> */}
                 <span className="font-extrabold">DANIEL</span>
                 <span className="font-hairline ml-1">WOOD</span>
-                {/* </Typist> */}
             </h1>
             <div className="flex justify-between select-none">
                 <Link
