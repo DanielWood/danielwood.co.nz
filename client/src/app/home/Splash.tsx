@@ -12,6 +12,8 @@ import Computer from './Computer';
 import ParticleEmitter from './ParticleEmitter';
 import CrazyTopology from './CrazyTopology';
 import Effects from './Effects';
+import keyframes from './store';
+import { animated as a, useSpring } from 'react-spring';
 
 // Custom camera rig
 const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
@@ -25,7 +27,7 @@ const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
     const cameraOffset = useMemo(() => new THREE.Euler(-50, 0, 2), []);
     useFrame(({ camera, mouse, clock }) => {
         camera.position.setX(
-            THREE.MathUtils.lerp(camera.position.x, cameraOffset.x + wheel.target * 60, 0.1) + wheel.nudge
+            THREE.MathUtils.lerp(camera.position.x, cameraOffset.x + wheel.getTarget() * 60, 0.1) + wheel.getNudge()
         );
         camera.position.setZ(THREE.MathUtils.lerp(camera.position.z, cameraOffset.z + mouse.x * -1.5, 0.05));
         // camera.position.setZ(wheel.nudge + THREE.MathUtils.lerp(camera.position.z, wheel.getTarget() * 60, 0.1));

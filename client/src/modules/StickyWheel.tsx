@@ -1,5 +1,7 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useThrottle } from '@react-hook/throttle';
 import Utils from '@/utils';
+import { useFrame } from 'react-three-fiber';
 
 class StickyWheel {
     public target: number;
@@ -102,18 +104,63 @@ const StickyWheelProvider = function ({
     speed = 2,
     damping = 5,
     wheelFactor = 0.2,
-    fps = 10,
+    fps = 2,
     inferMouseMs = 10000,
     children,
 }) {
-    const [wheel] = useState(new StickyWheel(min, max, speed, damping, wheelFactor, inferMouseMs));
-    return <StickyWheelContext.Provider value={wheel}>{children}</StickyWheelContext.Provider>;
+    const wheel = useMemo(() => new StickyWheel(min, max, speed, damping, wheelFactor, inferMouseMs), []);
+
+    // React state (for passing in props)
+    const [state, setState] = useThrottle(
+        {
+            target: wheel.target,
+            scroll: wheel.scroll,
+            nudge: wheel.nudge,
+            isTouchpad: wheel.isTouchpad,
+        },
+        fps
+    );
+
+    // Update react state
+    useEffect(() => {
+        const tick = () => {
+            setState({ target: wheel.target, scroll: wheel.scroll, nudge: wheel.nudge, isTouchpad: wheel.isTouchpad });
+            requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    });
+
+    // Real-time accessors (use these inside render loops)
+    const getScroll = () => wheel.scroll;
+    const getNudge = () => wheel.nudge;
+    const getTarget = () => wheel.target;
+    const getIsTouchpad = () => wheel.isTouchpad;
+
+    return (
+        <StickyWheelContext.Provider value={{ ...state, getScroll, getNudge, getTarget, getIsTouchpad }}>
+            {children}
+        </StickyWheelContext.Provider>
+    );
 };
 
+export interface StickyWheelState {
+    // Real time accessors (use these inside render loops)
+    getScroll: () => number;
+    getNudge: () => number;
+    getTarget: () => number;
+    getIsTouchpad: () => boolean;
+
+    // Stateful variables (pass these in props)
+    scroll: number;
+    nudge: number;
+    target: number;
+    isTouchpad: boolean;
+}
+
 export const useStickyWheel = () => {
-    const context = useContext<StickyWheel>(StickyWheelContext);
+    const context = useContext<StickyWheelState>(StickyWheelContext);
     if (context === null) {
-        throw new Error('useStickyWheel must be used within a StickyWheelProvider');
+        throw new Error('useStickyWheel must be called within a StickyWheelProvider');
     }
     return context;
 };
