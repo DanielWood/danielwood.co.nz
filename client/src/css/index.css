@@ -58,6 +58,18 @@ body,
     height: 3.75rem;
 }
 
+.w-80 {
+    width: 20rem;
+}
+
+.w-88 {
+    width: 22rem;
+}
+
+.w-96 {
+    width: 24rem;
+}
+
 /* Absolute alignment */
 .top-1\/2 {
     top: 50%;
@@ -91,4 +103,20 @@ body,
 /* SVG */
 .fill-transparent {
     fill: transparent;
+}
+
+.ml-1\/2-44 {
+    margin-left: Calc(50% - 11rem);
+}
+
+.ml-1\/4-44 {
+    margin-left: Calc(25% - 11rem);
+}
+
+.ml-1\/5-44 {
+    margin-left: Calc(20% - 11rem);
+}
+
+.cursor-none {
+    cursor: none;
 }

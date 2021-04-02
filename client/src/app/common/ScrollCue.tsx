@@ -9,9 +9,9 @@ const DownArrow = ({ width = 20 }) => (
 
 const ScrollCue = ({ className: extraClasses = '' }) => (
     <div className={cx('text-gray-100 stroke-current fill-transparent items-center flex flex-col', extraClasses)}>
-        <DownArrow width={25} />
-        <DownArrow width={25} />
-        <DownArrow width={25} />
+        <DownArrow width={20} />
+        <DownArrow width={20} />
+        <DownArrow width={20} />
         <h1 className="mt-1 text-xs font-normal animate-pulse">SCROLL</h1>
     </div>
 );
