@@ -13,7 +13,7 @@ import ParticleEmitter from './ParticleEmitter';
 import CrazyTopology from './CrazyTopology';
 import Effects from './Effects';
 import keyframes from './store';
-import { animated as a, useSpring } from 'react-spring';
+import { animated as a, useSpring } from 'react-spring/three';
 
 // Custom camera rig
 const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
@@ -27,11 +27,14 @@ const Rig = ({ wheel, lookAt = new THREE.Vector3() }) => {
     const cameraOffset = useMemo(() => new THREE.Euler(-50, 0, 2), []);
     useFrame(({ camera, mouse, clock }) => {
         camera.position.setX(
-            THREE.MathUtils.lerp(camera.position.x, cameraOffset.x + wheel.getTarget() * 60, 0.1) + wheel.getNudge()
+            THREE.MathUtils.lerp(camera.position.x, keyframes.cameraPos[wheel.target].x, 0.1) + wheel.getNudge()
         );
-        camera.position.setZ(THREE.MathUtils.lerp(camera.position.z, cameraOffset.z + mouse.x * -1.5, 0.05));
+        //camera.position.setZ(THREE.MathUtils.lerp(camera.position.z, cameraOffset.z + mouse.x * -1.5, 0.05));
         // camera.position.setZ(wheel.nudge + THREE.MathUtils.lerp(camera.position.z, wheel.getTarget() * 60, 0.1));
-        camera.lookAt(new THREE.Vector3(camera.position.x - 10, 0, camera.position.z));
+        // camera.lookAt(0, 0, 0);
+        const y = THREE.MathUtils.lerp(camera.rotation.y, keyframes.cameraRot[wheel.target].y, 0.6);
+        camera.lookAt(-60, y, 0);
+        // camera.lookAt(new THREE.Vector3(camera.position.x - 10, 0, camera.position.z));
     });
 
     return <></>;

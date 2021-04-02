@@ -30,7 +30,7 @@ const Computer = forwardRef<HTMLCanvasElement>(({}, ref) => {
 
     return (
         <>
-            <group ref={groupRef} position={[-70, -0.175, 2]} scale={[2, 2, 2]}>
+            <group ref={groupRef} position={[-70, 0.175, 0]} scale={[2, 2, 2]}>
                 {/* <pointLight position={[2.5, 0.1, 0]} color={0x059d82} intensity={1.7} /> */}
                 <mesh position={[2.1, 0.1, 0]} rotation={[0, Math.PI / 2, 0]} visible={true}>
                     <planeBufferGeometry args={[3, 2.6, 4, 4]} attach="geometry" />
