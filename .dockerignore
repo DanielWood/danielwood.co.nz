@@ -1,0 +1,9 @@
+**/node_modules
+**/.pnp
+**/.pnp.js
+
+# production
+**/build
+
+# tailwind
+**/tailwind.css
